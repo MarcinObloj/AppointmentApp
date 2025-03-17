@@ -1,0 +1,87 @@
+<div
+  class="flex justify-center items-center min-h-screen container mx-auto px-4"
+>
+  <div
+    class="bg-white py-16 px-12 border border-dark-section w-full lg:max-w-1/2"
+  >
+    <h2 class="text-2xl lg:text-3xl text-center mb-6">Zarejestruj się</h2>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <app-input
+            formControlName="firstName"
+            [label]="'Imię'"
+            [type]="'text'"
+            [placeholder]="'Wprowadź imię'"
+            [required]="true"
+          ></app-input>
+          @if(registerForm.get('firstName')?.touched &&
+          registerForm.get('firstName')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wpisz poprawne imię</p>
+          }
+        </div>
+
+        <div>
+          <app-input
+            formControlName="lastName"
+            [label]="'Nazwisko'"
+            [type]="'text'"
+            [placeholder]="'Wprowadź nazwisko'"
+            [required]="true"
+          ></app-input>
+          @if(registerForm.get('lastName')?.touched &&
+          registerForm.get('lastName')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wpisz poprawne nazwisko</p>
+          }
+        </div>
+        <div>
+          <app-input
+            formControlName="password"
+            [label]="'Hasło'"
+            [type]="'password'"
+            [placeholder]="'Wprowadź hasło'"
+            [required]="true"
+          ></app-input>
+          @if(registerForm.get('password')?.touched &&
+          registerForm.get('password')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź hasło</p>
+          } @if(registerForm.get('password')?.touched &&
+          registerForm.get('password')?.errors?.['minlength']){
+          <p class="text-red-500 text-sm">
+            Hasło musi mieć przynajmniej 6 znaków
+          </p>
+          }
+        </div>
+
+        <div>
+          <app-input
+            formControlName="email"
+            [label]="'Wpisz email'"
+            [type]="'email'"
+            [placeholder]="'Podaj email'"
+            [required]="true"
+          ></app-input>
+          @if(registerForm.get('email')?.touched &&
+          registerForm.get('email')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wproadz email</p>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-between text-sm text-gray-600 my-4">
+        <span></span>
+        <a href="#" class="hover:underline focus:outline-none focus:underline">
+          Masz już konto? <span class="text-orange-500">Zaloguj się!</span>
+        </a>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-2 transition duration-300 focus:outline-none hover:bg-primary hover:text-white cursor-pointer focus:bg-primary"
+      >
+        Zarejestruj się
+      </button>
+    </form>
+  </div>
+</div>

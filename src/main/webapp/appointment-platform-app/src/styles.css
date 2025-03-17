@@ -1,0 +1,16 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+@theme {
+  --color-primary: #E3BB8A;
+  --color-dark-section: #272624;
+}
+html,body{
+  overflow-x: hidden;
+}
+body.overflow-hidden {
+  overflow: hidden !important;
+  height: 100vh;
+}
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

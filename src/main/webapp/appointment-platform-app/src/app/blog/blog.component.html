@@ -1,0 +1,176 @@
+<main class="mx-2">
+  <section
+    class="container mx-auto p-6 bg-white border border-gray-300 lg:max-w-2/3 mb-4"
+  >
+    <div class="text-center lg:text-left">
+      <h2 class="text-2xl lg:text-3xl font-semibold mb-4">
+        Zadaj pytanie naszym ekspertom finansowym
+      </h2>
+      <p class="text-gray-600 mb-4">
+        Uzyskaj pomoc w kwestiach finansowych, korzystając z wiedzy naszych
+        ekspertów i doradców.
+      </p>
+      <ul class="mb-6 space-y-2">
+        <li class="flex items-center gap-2">
+          <img src="img/check.png" alt="icon" class="w-5 h-5" /> Otrzymujesz
+          kilka odpowiedzi
+        </li>
+        <li class="flex items-center gap-2">
+          <img src="img/check.png" alt="icon" class="w-5 h-5" /> Najczęściej do
+          48h
+        </li>
+        <li class="flex items-center gap-2">
+          <img src="img/check.png" alt="icon" class="w-5 h-5" /> Zupełnie za
+          darmo!
+        </li>
+      </ul>
+
+      <textarea
+        class="w-full p-3 border-b-1 focus:outline-none focus:border-b-2"
+        rows="4"
+        placeholder="Zadaj swoje pytanie tutaj"
+      ></textarea>
+    </div>
+
+    <ul class="text-sm text-gray-500 space-y-2">
+      <li>• Twoje pytanie zostanie opublikowane anonimowo.</li>
+      <li>
+        • Pamiętaj, by zadać jedno konkretne pytanie, opisując problem zwięźle.
+      </li>
+      <li>
+        • Pytanie trafi do specjalistów korzystających z serwisu, nie do
+        konkretnego eksperta.
+      </li>
+      <li>
+        • Otrzymane odpowiedzi nie zastępują pełnej konsultacji z doradcą
+        finansowym.
+      </li>
+      <li>
+        • Miejsce to nie służy do uzyskania indywidualnych rekomendacji
+        inwestycyjnych.
+      </li>
+    </ul>
+
+    <button
+      class="mt-6 hover:bg-primary hover:text-white px-6 py-2 rounded-lg focus:bg-primary transition duration-300 cursor-pointer focus:outline-none"
+    >
+      Wyślij wiadomość
+    </button>
+
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+      <div>
+        <img src="img/question-icon.png" alt="icon" class="mx-auto w-10 h-10" />
+        <p class="text-2xl font-bold">163599</p>
+        <p class="text-gray-600">Pytań zadanych przez pacjentów</p>
+      </div>
+      <div>
+        <img src="img/answer-icon.png" alt="icon" class="mx-auto w-10 h-10" />
+        <p class="text-2xl font-bold">32167</p>
+        <p class="text-gray-600">Odpowiedzi udzielonych przez ekspertów</p>
+      </div>
+      <div>
+        <img src="img/expert-icon.png" alt="icon" class="mx-auto w-10 h-10" />
+        <p class="text-2xl font-bold">3600</p>
+        <p class="text-gray-600">
+          Doradców i specjalistów odpowiadających na pytania
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="container mx-auto p-6 bg-white border border-gray-300 lg:max-w-2/3 mb-4"
+  >
+    <h1
+      class="text-primary my-2 uppercase text-2xl font-bold md:text-3xl md:text-left z-10"
+    >
+      Jak to działa?
+    </h1>
+    <div class="md:flex gap-12 md:justify-center md:items-center z-10">
+      <div class="flex flex-wrap justify-center gap-4 w-full">
+        @for (card of cards; track card.id) {
+        <app-card
+          [card]="card"
+          class="flex flex-col justify-between w-64 min-h-80 bg-white p-4 flex-grow"
+        ></app-card>
+        }
+      </div>
+    </div>
+  </section>
+  <section
+    class="container mx-auto p-6 bg-white border border-gray-300 lg:max-w-2/3 mb-4"
+  >
+    <h2 class="text-2xl mb-4">Ostatnie zadane pytania</h2>
+
+    <div class="mb-6 border p-4">
+      <div class="border-1 p-4">
+        <p class="mb-2">Witam, jak skutecznie oszczędzać na emeryturze?</p>
+      </div>
+      <div class="bg-gray-100 lg:flex gap-4 p-4 my-4">
+        <p class="flex-grow text-gray-700 text-sm w-full lg:w-2/3">
+          Dzień dobry, oszczędzanie na emeryturę powinno opierać się na
+          dywersyfikacji źródeł dochodu, takich jak IKZE, IKE oraz inwestycje
+          długoterminowe. Warto także rozważyć ubezpieczenia rentowe oraz
+          prywatne fundusze inwestycyjne...
+        </p>
+        <div class="m-4 flex gap-2 mx-auto text-center">
+          <div>
+            <img
+              src="img/expert2.png"
+              alt="Ekspert"
+              class="min-w-12 min-h-12 l mb-1 lg:w-full lg:h-1/2"
+            />
+          </div>
+          <div>
+            <div>
+              <p class="font-bold">Piotr Nowak</p>
+              <p class="text-sm text-gray-500">
+                Doradca emerytalny<br />Warszawa
+              </p>
+              <p class="text-yellow-500 mb-2">★★★★★</p>
+            </div>
+            <app-button-primary
+              [text]="'Umów wizytę'"
+              class="max-w-1/2"
+            ></app-button-primary>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mb-6 border p-4">
+      <div class="border-1 p-4">
+        <p class="mb-2">Witam, jak skutecznie oszczędzać na emeryturze?</p>
+      </div>
+      <div class="bg-gray-100 lg:flex gap-4 p-4 my-4">
+        <p class="flex-grow text-gray-700 text-sm w-full lg:w-2/3">
+          Dzień dobry, oszczędzanie na emeryturę powinno opierać się na
+          dywersyfikacji źródeł dochodu, takich jak IKZE, IKE oraz inwestycje
+          długoterminowe. Warto także rozważyć ubezpieczenia rentowe oraz
+          prywatne fundusze inwestycyjne...
+        </p>
+        <div class="m-4 flex gap-2 mx-auto text-center">
+          <div>
+            <img
+              src="img/expert2.png"
+              alt="Ekspert"
+              class="min-w-12 min-h-12 l mb-1 lg:w-full lg:h-1/2"
+            />
+          </div>
+          <div>
+            <div>
+              <p class="font-bold">Piotr Nowak</p>
+              <p class="text-sm text-gray-500">
+                Doradca emerytalny<br />Warszawa
+              </p>
+              <p class="text-yellow-500 mb-2">★★★★★</p>
+            </div>
+            <app-button-primary
+              [text]="'Umów wizytę'"
+              class="max-w-1/2"
+            ></app-button-primary>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>

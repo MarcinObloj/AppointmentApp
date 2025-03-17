@@ -1,0 +1,97 @@
+<div
+  class="flex justify-center items-center min-h-screen container mx-auto px-4"
+>
+  <div
+    class="bg-white py-16 px-12 border border-dark-section w-full lg:max-w-1/2 my-4"
+  >
+    <h2 class="text-2xl lg:text-3xl text-center mb-6">Skontaktuj się z nami</h2>
+
+    <form [formGroup]="contactForm" (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <app-input
+            formControlName="firstName"
+            [label]="'Imię'"
+            [type]="'text'"
+            [placeholder]="'Wprowadź imię'"
+            [required]="true"
+          ></app-input>
+          @if (contactForm.get('firstName')?.touched &&
+          contactForm.get('firstName')?.errors?.['required']) {
+          <p class="text-red-500 text-sm">Wprowadź imię</p>
+          }
+        </div>
+
+        <div>
+          <app-input
+            formControlName="lastName"
+            [label]="'Nazwisko'"
+            [type]="'text'"
+            [placeholder]="'Wprowadź nazwisko'"
+            [required]="true"
+          ></app-input>
+          @if (contactForm.get('lastName')?.touched &&
+          contactForm.get('lastName')?.errors?.['required']) {
+          <p class="text-red-500 text-sm">Wprowadź nazwisko</p>
+          }
+        </div>
+
+        <div>
+          <app-input
+            formControlName="email"
+            [label]="'Email'"
+            [type]="'email'"
+            [placeholder]="'Wprowadź email'"
+            [required]="true"
+          ></app-input>
+          @if (contactForm.get('email')?.touched &&
+          contactForm.get('email')?.errors?.['required']) {
+          <p class="text-red-500 text-sm">Wprowadź email</p>
+          } @if (contactForm.get('email')?.touched &&
+          contactForm.get('email')?.errors?.['email']) {
+          <p class="text-red-500 text-sm">Wprowadź poprawny adres email</p>
+          }
+        </div>
+
+        <div>
+          <app-input
+            formControlName="phone"
+            [label]="'Numer telefonu'"
+            [type]="'tel'"
+            [placeholder]="'Wprowadź numer telefonu'"
+            [required]="true"
+          ></app-input>
+          @if (contactForm.get('phone')?.touched &&
+          contactForm.get('phone')?.errors?.['required']) {
+          <p class="text-red-500 text-sm">Wprowadź numer telefonu</p>
+          }
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <label for="message" class="block text-sm"
+          >Wpisz swoją wiadomość tutaj*</label
+        >
+        <textarea
+          id="message"
+          formControlName="message"
+          rows="4"
+          class="mt-1 p-2 w-full border-b focus:outline-none focus:border-b-2"
+          placeholder="Wpisz swoją wiadomość"
+          required
+        ></textarea>
+        @if (contactForm.get('message')?.touched &&
+        contactForm.get('message')?.errors?.['required']) {
+        <p class="text-red-500 text-sm">Wpisz swoją wiadomość</p>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-2 mt-4 transition duration-300 focus:outline-none hover:bg-primary hover:text-white cursor-pointer focus:bg-primary"
+      >
+        Wyślij wiadomość
+      </button>
+    </form>
+  </div>
+</div>

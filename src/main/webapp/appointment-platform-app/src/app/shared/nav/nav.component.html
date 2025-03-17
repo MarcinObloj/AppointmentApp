@@ -1,0 +1,173 @@
+<nav
+  [ngClass]="{
+    'bg-dark-section text-white': isDefaultRoute(),
+    'bg-white text-dark-section': !isDefaultRoute()
+  }"
+  class="p-6 lg:text-xl"
+  [class.overflow-hidden]="isOpen"
+>
+  <div class="container flex mx-auto justify-between">
+    <!-- Logo -->
+    <div class="flex justify-center items-center space-x-1 cursor-pointer z-50">
+      <img src="img/logoIcon.svg" alt="logo" class="w-full" />
+      <a routerLink="/" class="text-xl lg:text-2xl font-bold"
+        >Fin<span class="text-primary">Expert</span></a
+      >
+    </div>
+
+    @if(isBlogRoute() ){
+    <div class="flex items-center border border-gray-300 rounded px-2">
+      <select
+        class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
+      >
+        <option>Specjalizacja</option>
+        <option *ngFor="let spec of specializations" [value]="spec">
+          {{ spec }}
+        </option>
+      </select>
+      <select
+        class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
+      >
+        <option>Miasto lub dzielnica</option>
+        <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+      </select>
+      <a class="p-2" routerLink="/results">
+        <svg
+          class="cursor-pointer"
+          width="20px"
+          height="20px"
+          viewBox="0 0 20 20"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            d="M4.47487 4.4749C2.32698 6.62279 2.32698 10.1052 4.47487 12.2531C6.62275 14.401 10.1052 14.401 12.253 12.2531C14.4009 10.1052 14.4009 6.62279 12.253 4.4749C10.1052 2.32702 6.62275 2.32702 4.47487 4.4749ZM10.8388 10.8389C9.47199 12.2057 7.25591 12.2057 5.88908 10.8389C4.52224 9.47203 4.52224 7.25595 5.88908 5.88912C7.25591 4.52228 9.47199 4.52228 10.8388 5.88912C12.2057 7.25595 12.2057 9.47203 10.8388 10.8389Z"
+            fill="#000000"
+          />
+          <path
+            d="M11.1924 13.3137C10.6066 12.7279 10.6066 11.7782 11.1924 11.1924C11.7782 10.6066 12.7279 10.6066 13.3137 11.1924L16.8492 14.7279C17.435 15.3137 17.435 16.2635 16.8492 16.8492C16.2635 17.435 15.3137 17.435 14.7279 16.8492L11.1924 13.3137Z"
+            fill="#000000"
+          />
+        </svg>
+      </a>
+    </div>
+
+    }
+
+    <!-- Desktop Menu -->
+    @if(!isBlogRoute()){
+    <ul class="hidden md:flex space-x-6 text-center">
+      <app-button-primary
+        [text]="'Eksperci'"
+        routerLink="/experts"
+      ></app-button-primary>
+      @if(!isBlogRoute()){
+      <app-button-primary
+        [text]="'Blog'"
+        routerLink="/blog"
+      ></app-button-primary>
+      } @if(!isContactRoute()){
+      <app-button-primary
+        [text]="'Kontakt'"
+        routerLink="/contact"
+      ></app-button-primary>
+      } @if (!isLoginRoute()) {
+      <app-button-primary
+        [text]="'Zaloguj'"
+        routerLink="/login"
+      ></app-button-primary>
+      } @if (!isRegisterRoute() ) {
+      <app-button-primary
+        [text]="'Rejestracja'"
+        routerLink="/register"
+      ></app-button-primary>
+      }
+    </ul>
+    }
+
+    <!-- Mobile Menu Button -->
+    @if(!isBlogRoute()){
+    <button
+      class="md:hidden cursor-pointer focus:outline-none z-50"
+      (click)="toggleMenu()"
+    >
+      @if (!isOpen) {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-8 w-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+      } @else {
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-8 w-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"
+        />
+      </svg>
+      }
+    </button>
+    }
+    <!-- Mobile Menu -->
+    <div
+      [ngClass]="{
+        'bg-dark-section text-white': isDefaultRoute(),
+        'bg-white text-dark-section': !isDefaultRoute()
+      }"
+      class="md:hidden fixed top-0 left-0 w-full h-full backdrop-blur-sm transition-transform duration-300 ease-in-out z-40 px-2"
+      [class.translate-x-0]="isOpen"
+      [class.-translate-x-full]="!isOpen"
+    >
+      <ul
+        class="flex flex-col justify-center items-center w-full h-full space-y-6 text-center"
+      >
+        <app-button-primary
+          [text]="'Eksperci'"
+          class="w-full"
+          routerLink="/experts"
+        ></app-button-primary>
+        <app-button-primary
+          [text]="'Blog'"
+          class="w-full"
+          routerLink="/blog"
+        ></app-button-primary>
+        @if(!isContactRoute()){
+        <app-button-primary
+          [text]="'Kontakt'"
+          class="w-full"
+          routerLink="/contact"
+        ></app-button-primary>
+        } @if (!isLoginRoute()) {
+        <app-button-primary
+          [text]="'Zaloguj'"
+          class="w-full"
+          routerLink="/login"
+        ></app-button-primary>
+        }
+        <app-button-primary
+          [text]="'Rejestracja'"
+          class="w-full"
+          routerLink="/register"
+        ></app-button-primary>
+      </ul>
+    </div>
+  </div>
+</nav>

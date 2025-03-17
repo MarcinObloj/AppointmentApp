@@ -1,0 +1,8 @@
+::ng-deep .mat-datepicker-content {
+  background-color: #f0f0f0; /* Jasnoszare tło */
+}
+
+::ng-deep .mat-calendar {
+  background-color: #e3bb8a;
+  color: white; /* Białe tło dla kalendarza */
+}

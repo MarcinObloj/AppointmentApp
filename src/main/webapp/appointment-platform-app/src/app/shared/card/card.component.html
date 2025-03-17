@@ -1,0 +1,6 @@
+<div class="group p-4 border-2 border-gray-400 gap-4 flex justify-center flex-col items-center hover:border-primary transition duration-300">
+  <img [src]="card()?.icon" class="group-hover:filter group-hover:brightness-60 group-hover:invert transition duration-300">
+  <h2 class="text-xl md:text-2xl lg:text-3xl group-hover:text-primary transition duration-300 max-h-20 overflow-hidden">{{ card()?.title }}</h2>
+  <p class="group-hover:text-primary transition duration-300 font-light min-h-16 max-h-24 overflow-hidden">{{ card()?.content }}</p>
+  <p class="text-6xl font-bold group-hover:text-primary transition duration-300">{{ card()?.id }}</p>
+</div>

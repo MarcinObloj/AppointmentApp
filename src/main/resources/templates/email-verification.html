@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weryfikacja konta</title>
+    <style>
+        a{
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Witaj, <span th:text="${name}"></span></h1>
+    <p>Dziękujemy za rejestracje w naszym serwisie. Aby aktywować konto, kliknij poniższy link: </p>
+    <a th:href="${verificationLink}">Aktywuj konto</a>
+    <p>Jeśli nie rejestrowałeś się w naszym serwisie, zignoruj tą wiadomość</p>
+</body>
+</html>

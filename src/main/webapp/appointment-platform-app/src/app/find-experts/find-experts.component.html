@@ -1,0 +1,51 @@
+<div
+  class="flex justify-center items-center min-h-screen container mx-auto px-4"
+>
+  <div
+    class="bg-white py-16 px-12 border border-dark-section w-full lg:max-w-1/2"
+  >
+    <h2 class="text-2xl lg:text-3xl text-center mb-6">Wyszukaj ekspertów</h2>
+
+    <form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+      <div class="mb-4">
+        <label for="specialization" class="block text-gray-700"
+          >Specjalizacja</label
+        >
+        <select
+          id="specialization"
+          formControlName="specialization"
+          class="w-full border-b p-2 mt-1 focus:outline-none focus:border-b-2 cursor-pointer"
+        >
+          <option value="">Wybierz specjalizację</option>
+
+          @for( spec of specializations; track $index){
+          <option [value]="spec">{{ spec }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="city" class="block text-dark-section"
+          >Miasto lub dzielnica</label
+        >
+        <select
+          id="city"
+          formControlName="city"
+          class="w-full border-b p-2 mt-1 focus:outline-none focus:border-b-2 cursor-pointer"
+        >
+          <option value="">Wybierz miasto</option>
+          @for(city of cities; track $index){
+          <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-2 mt-4 hover:bg-primary hover:text-white ocus:outline-none transition duration-300 cursor-pointer"
+      >
+        Szukaj
+      </button>
+    </form>
+  </div>
+</div>

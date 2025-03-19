@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { InputComponent } from '../../shared/input/input.component';
 
 import {
-  
   FormBuilder,
   FormGroup,
   Validators,
   ReactiveFormsModule,
   FormControl,
-  FormsModule
+  FormsModule,
 } from '@angular/forms';
+import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-login',
   imports: [InputComponent, ReactiveFormsModule],
@@ -18,19 +18,28 @@ import {
 })
 export class LoginComponent {
   loginForm!: FormGroup;
-
+  authService = inject(AuthService);
+  fb = inject(FormBuilder);
+  errorMessage: string = '';
   ngOnInit() {
-    this.loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [
-        Validators.required,
-        Validators.minLength(6),
-      ]),
+    this.loginForm = this.fb.group({
+      username: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
     });
   }
   onSubmit(): void {
     if (this.loginForm.valid) {
-      console.log('logowanie');
+      this.authService
+        .login(this.loginForm.value.username, this.loginForm.value.password)
+        .subscribe({
+          next: (response) => {
+            console.log('Zalogowano:', response);
+          },
+          error: (error) => {
+            console.error('Błąd logowania:', error);
+            this.errorMessage = error.message;
+          },
+        });
     } else {
       this.loginForm.markAllAsTouched();
     }

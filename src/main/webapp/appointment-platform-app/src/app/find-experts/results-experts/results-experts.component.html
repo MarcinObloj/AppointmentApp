@@ -38,6 +38,7 @@
   }
 
   <div class="container mx-auto p-6 bg-white border border-gray-300">
+   
     <div class="flex flex-col md:flex-row bg-white border p-4 shadow-md mb-4">
       <div class="flex-shrink-0">
         <img src="img/expert2.png" alt="Ekspert" class="w-24 h-24" />
@@ -103,135 +104,6 @@
         }
       </div>
     </div>
-    <div class="flex flex-col md:flex-row bg-white border p-4 shadow-md mb-4">
-      <div class="flex-shrink-0">
-        <img src="img/expert2.png" alt="Ekspert" class="w-24 h-24" />
-      </div>
-
-      <div class="flex-grow md:ml-4">
-        <h2 class="text-xl font-semibold">Piotr Nowak</h2>
-        <p class="text-yellow-500">★★★★★ 64 opinie</p>
-        <p class="text-gray-600">📍 Kraków, ul. Nowoczesna 15</p>
-        <p class="text-gray-600">
-          💼 Konsultacja finansowa - <strong>200 zł</strong>
-        </p>
-      </div>
-
-      <div class="mt-4 md:mt-0 md:ml-4 md:w-2/3">
-        <mat-form-field>
-          <mat-label>Wybierz datę</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [(ngModel)]="selectedDate"
-            [min]="minDate"
-            class="bg-gray-100 p-2 rounded"
-          />
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker class="bg-gray-100"></mat-datepicker>
-        </mat-form-field>
-
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="text-gray-500">Dziś</div>
-          <div class="text-gray-500">Jutro</div>
-          <div class="text-gray-500">Pon</div>
-
-          <div>-</div>
-
-          @for (hour of availableHours; track $index) {
-          <button
-            class="px-3 py-1 border hover:bg-primary hover:text-white transition duration-300 cursor-pointer"
-            (click)="book(hour)"
-          >
-            {{ hour }}
-          </button>
-          }
-        </div>
-
-        @if(!showHours){
-        <button
-          class="mt-2 text-primary cursor-pointer hover:underline"
-          (click)="showMoreHours()"
-        >
-          Pokaż więcej godzin
-        </button>
-        }@else {
-        <button
-          class="mt-2 text-primary cursor-pointer hover:underline"
-          (click)="showLessHours()"
-        >
-          Pokaż mniej godzin
-        </button>
-        }
-      </div>
-    </div>
-    <div class="flex flex-col md:flex-row bg-white border p-4 shadow-md mb-4">
-      <div class="flex-shrink-0">
-        <img src="img/expert2.png" alt="Ekspert" class="w-24 h-24" />
-      </div>
-
-      <div class="flex-grow md:ml-4">
-        <h2 class="text-xl font-semibold">Piotr Nowak</h2>
-        <p class="text-yellow-500">★★★★★ 64 opinie</p>
-        <p class="text-gray-600">📍 Kraków, ul. Nowoczesna 15</p>
-        <p class="text-gray-600">
-          💼 Konsultacja finansowa - <strong>200 zł</strong>
-        </p>
-      </div>
-
-      <div class="mt-4 md:mt-0 md:ml-4 md:w-2/3">
-        <mat-form-field>
-          <mat-label>Wybierz datę</mat-label>
-          <input
-            matInput
-            [matDatepicker]="picker"
-            [(ngModel)]="selectedDate"
-            [min]="minDate"
-            class="bg-gray-100 p-2 rounded"
-          />
-          <mat-datepicker-toggle
-            matSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker class="bg-gray-100"></mat-datepicker>
-        </mat-form-field>
-
-        <div class="grid grid-cols-3 gap-2 text-center">
-          <div class="text-gray-500">Dziś</div>
-          <div class="text-gray-500">Jutro</div>
-          <div class="text-gray-500">Pon</div>
-
-          <div>-</div>
-
-          @for (hour of availableHours; track $index) {
-          <button
-            class="px-3 py-1 border hover:bg-primary hover:text-white transition duration-300 cursor-pointer"
-            (click)="book(hour)"
-          >
-            {{ hour }}
-          </button>
-          }
-        </div>
-
-        @if(!showHours){
-        <button
-          class="mt-2 text-primary cursor-pointer hover:underline"
-          (click)="showMoreHours()"
-        >
-          Pokaż więcej godzin
-        </button>
-        }@else {
-        <button
-          class="mt-2 text-primary cursor-pointer hover:underline"
-          (click)="showLessHours()"
-        >
-          Pokaż mniej godzin
-        </button>
-        }
-      </div>
-    </div>
+   
   </div>
 </main>

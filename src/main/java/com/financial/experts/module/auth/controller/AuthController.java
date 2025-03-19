@@ -5,7 +5,9 @@ import com.financial.experts.module.auth.dto.RegisterDTO;
 import com.financial.experts.module.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,8 +34,10 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginDTO loginRequest) {
         try {
             return ResponseEntity.ok(authService.login(loginRequest));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Niepoprawne dane logowania"); // ⬅ Zwracamy 401!
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Błąd serwera");
         }
     }
 }

@@ -1,0 +1,285 @@
+<section
+  class="container mx-auto p-3 md:p-6 md:flex md:justify-center gap-4 lg:text-xl"
+>
+  <div class="w-full md:w-2/3">
+    <div
+      class="flex flex-col lg:flex-row border border-gray-300 px-4 py-8 shadow-md mb-4"
+    >
+      <div class="flex-shrink-0">
+        <img src="img/expert2.png" alt="Ekspert" class="w-24 h-24" />
+      </div>
+
+      <div class="flex-grow md:ml-4">
+        <h2 class="text-xl font-semibold mb-2">Piotr Nowak</h2>
+        <p class="text-yellow-500 mb-2">★★★★★ 64 opinie</p>
+        <p class="text-gray-600 mb-2">📍 Kraków, ul. Nowoczesna 15</p>
+        <p class="text-gray-600 mb-4">
+          💼 Konsultacja finansowa - <strong>200 zł</strong>
+        </p>
+      </div>
+      <div class="lg:flex lg:gap-4 justify-center items-center">
+        <app-button-primary
+          [text]="'Umów wizytę'"
+          class=""
+        ></app-button-primary>
+        <app-button-primary
+          [text]="'Wyślij wiadomość'"
+          class=""
+        ></app-button-primary>
+      </div>
+    </div>
+    <div class="flex justify-evenly">
+      <a href="" class="cursor-pointer">Aktualności</a>
+
+      <a href="" class="cursor-pointer text-gray-400">Doświadczenie</a>
+      <a href="" class="cursor-pointer text-gray-400">Adresy</a>
+      <a href="" class="cursor-pointer text-gray-400">Cennik</a>
+      <a href="" class="cursor-pointer text-gray-400">Opinie(64)</a>
+    </div>
+    <div class="border border-gray-300 p-8 my-4">
+      <h3 class="text-xl font-semibold mb-4">mgr Adrian Feluś</h3>
+      <p class="text-gray-600">Osiedle Dywizjonu 303/76, 31-874 Kraków</p>
+      <p class="mt-2">Ukończone szkolenia i kursy:</p>
+      <ul class="list-disc list-inside text-gray-600">
+        <li>Certyfikat doradcy finansowego</li>
+        <li>Kursy z zakresu zarządzania ryzykiem finansowym</li>
+        <li>Specjalizacja w analizie kredytowej i hipotecznej</li>
+        <li>Szkolenie z zakresu inwestycji i portfela aktywów</li>
+        <li>Zaawansowane techniki optymalizacji podatkowej</li>
+        <li>
+          Szkolenie z zakresu strategii emerytalnych i planowania finansowego
+        </li>
+      </ul>
+      <p
+        class="font-bold cursor-pointer mt-2 hover:underline hover:text-primary transition duration-300"
+      >
+        Dowiedz się więcej
+      </p>
+    </div>
+    <div class="border border-gray-300 p-8">
+      <h3 class="text-xl font-semibold mb-4">Moje doświadczenie</h3>
+      <p class="text-gray-600 mb-4">
+        Jestem magistrem finansów z kilkuletnim doświadczeniem w doradztwie
+        finansowym. Specjalizuję się w planowaniu finansowym, optymalizacji
+        podatkowej, analizie inwestycji oraz doradztwie kredytowym. W swojej
+        pracy łączę wiedzę z zakresu ekonomii, prawa finansowego oraz
+        zarządzania ryzykiem. Moje podejście jest indywidualne, staram się
+        dobrać najlepsze rozwiązania dostosowane do potrzeb i celów finansowych
+        moich klientów. Uważam, że kluczem do sukcesu finansowego jest dokładne
+        zrozumienie sytuacji klienta oraz opracowanie kompleksowego planu
+        działania....
+      </p>
+      <app-button-primary [text]="'Pokaż więcej'"></app-button-primary>
+    </div>
+    <div>
+      <div class="border border-gray-300 p-8">
+        <h3 class="text-xl font-semibold">Adres</h3>
+        <div class="flex items-center mt-4 justify-between">
+          <div>
+            <p>📍 Kraków, ul. Nowoczesna 15</p>
+            <p class="text-gray-600">Centrum Doradztwa Finansowego</p>
+          </div>
+          <div class="mt-4">
+            <iframe
+              class="w-full h-1/2 border -md"
+              src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&q=Krak%C3%B3w,Nowoczesna+15"
+              allowfullscreen
+            ></iframe>
+          </div>
+        </div>
+        <hr class="block my-6 text-gray-400" />
+
+        <div class="mt-4 flex flex-col gap-2">
+          <div class="flex items-center">
+            <span class="mr-2">👤</span> Pacjenci prywatni (bez ubezpieczenia)
+          </div>
+          <hr class="block my-6 text-gray-400" />
+          <div class="flex items-center">
+            <span class="mr-2">&#x2795;</span> Przyjmuje dorosłych, firmy
+          </div>
+          <hr class="block mt-6 text-gray-400" />
+        </div>
+        <app-button-primary [text]="'Pokaż więcej'"></app-button-primary>
+      </div>
+
+      <div class="border border-gray-300 p-8 my-4">
+        <h3 class="text-xl font-semibold">Usługi i ceny</h3>
+        <div class="mt-4">
+          <div class="flex justify-between border-b border-gray-200 py-2 mb-4">
+            <div>
+              <p>Konsultacja finansowa</p>
+              <p>200 zł</p>
+            </div>
+            <app-button-primary [text]="'Umów wizytę'"></app-button-primary>
+          </div>
+          <div class="flex justify-between border-b border-gray-200 py-2 mb-4">
+            <span>Analiza kredytowa</span>
+            <span>250 zł</span>
+            <app-button-primary [text]="'Umów wizytę'"></app-button-primary>
+          </div>
+          <div class="flex justify-between border-b border-gray-200 py-2 mb-4">
+            <span>Optymalizacja podatkowa</span>
+            <span>200 zł</span>
+            <app-button-primary [text]="'Umów wizytę'"></app-button-primary>
+          </div>
+          <button
+            class="my-4 underline cursor-pointer hover:underline hover:text-primary"
+          >
+            + 10 usług
+          </button>
+        </div>
+        <app-button-primary [text]="'Pokaż więcej'"></app-button-primary>
+      </div>
+    </div>
+    <div class="border border-gray-300 p-8 my-4">
+      <h3 class="text-xl font-semibold">64 opinie</h3>
+      <p class="text-gray-500">Ogólna ocena</p>
+
+      <!-- Filtry opinii -->
+      <div class="flex space-x-4 mt-4">
+        <button
+          *ngFor="let filter of filters1"
+          (click)="setActiveFilter(filter)"
+          [ngClass]="{
+            'bg-gray-200': activeFilter === filter,
+            'text-gray-400': activeFilter !== filter
+          }"
+          class="border px-4 py-2 cursor-pointer hover:text-gray-600"
+        >
+          {{ filter }}
+        </button>
+      </div>
+
+      <!-- Sortowanie opinii -->
+      <h4 class="mt-6 text-lg font-semibold">Sortuj opinie według</h4>
+      <div class="flex space-x-4 mt-2">
+        <button
+          *ngFor="let sort of sortOptions"
+          (click)="setActiveSort(sort)"
+          [ngClass]="{
+            'bg-gray-200': activeSort === sort,
+            'text-gray-400': activeSort !== sort
+          }"
+          class="border px-4 py-2 cursor-pointer hover:text-gray-600"
+        >
+          {{ sort }}
+        </button>
+      </div>
+
+      <div class="border border-gray-200 p-4 mt-4">
+        <div class="flex gap-4 items-center mb-2">
+          <img src="img/expert2.png" alt="" />
+          <div>
+            <span class="font-semibold">Agnieszka</span>
+            <p class="text-yellow-500 ml-2">★★★★★</p>
+          </div>
+        </div>
+        <p class="text-gray-500 text-sm">4 marca 2025</p>
+        <p class="mt-2">
+          Zamawiałam wizytę dla taty, który bardzo pozytywnie wypowiedział się o
+          panu Adrianie. Tata szczególnie zwrócił uwagę na zaangażowanie i
+          bardzo uczciwe podejście do klienta. Polecam.
+        </p>
+        <div class="flex justify-between gap-4 mt-4">
+          <button
+            (click)="toggleHelpful(true)"
+            [ngClass]="{
+              'text-primary': isHelpful === true,
+              'text-gray-500': isHelpful !== true
+            }"
+            class="flex items-center gap-3 cursor-pointer"
+          >
+            <img src="img/like.png" alt="" />
+            <p>Przydatne</p>
+          </button>
+          <button
+            (click)="toggleHelpful(false)"
+            [ngClass]="{
+              'text-red-500': isHelpful === false,
+              'text-gray-500': isHelpful !== false
+            }"
+            class="flex items-center gap-3 cursor-pointer"
+          >
+            <img src="img/dislike.png" alt="" />
+            <p>Nieprzydatne</p>
+          </button>
+          <button
+            class="underline hover:text-primary transition duration-300 cursor-pointer"
+          >
+            Zgłoś nadużycie
+          </button>
+        </div>
+      </div>
+
+      <hr class="my-8" />
+      <app-button-primary [text]="'Pokaż więcej'"></app-button-primary>
+    </div>
+  </div>
+
+  <div
+    class="hidden md:block top-4 p-4 border border-gray-200 bg-gray-50 sticky h-max w-1/3"
+  >
+    <h3 class="text-lg mb-4 p-4 border-1">Umów Wizytę</h3>
+    <div class="mb-2 flex gap-2">
+      <img src="img/check.png" alt="" class="object-hover w-6 h-6" />
+      <h2>Adres:</h2>
+    </div>
+    <p class="text-gray-600 ml-8">Osiedle Dywizjonu 303/76, Kraków</p>
+    <div class="mb-2 flex gap-2 mt-2">
+      <img src="img/check.png" alt="" class="object-hover w-6 h-6" />
+      <label class="block">Usługi:</label>
+    </div>
+    <select class="w-2/3 px-4 py-2 border ml-8">
+      <option>Konsultacja finansowa</option>
+    </select>
+    <div class="mb-2 flex gap-2 mt-4">
+      <img src="img/check.png" alt="" class="object-hover w-6 h-6" />
+      <p>Konsultacja finansowa - <span class="font-extralight">200zł</span></p>
+    </div>
+
+    <mat-form-field class="w-full mt-4">
+      <mat-label>Wybierz datę</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [(ngModel)]="selectedDate"
+        [min]="minDate"
+        class="bg-gray-100 p-2"
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker class="bg-gray-100"></mat-datepicker>
+    </mat-form-field>
+
+    <div class="grid grid-cols-3 gap-2 text-center mt-4">
+      <div class="text-gray-500">Dziś</div>
+      <div class="text-gray-500">Jutro</div>
+      <div class="text-gray-500">Pon</div>
+
+      <div>-</div>
+      @for (hour of availableHours; track $index) {
+      <button
+        class="px-3 py-1 border hover:bg-primary hover:text-white transition duration-300 cursor-pointer"
+        (click)="book(hour)"
+      >
+        {{ hour }}
+      </button>
+      }
+    </div>
+
+    @if(!showHours){
+    <button
+      class="mt-2 text-primary cursor-pointer hover:underline"
+      (click)="showMoreHours()"
+    >
+      Pokaż więcej godzin
+    </button>
+    }@else {
+    <button
+      class="mt-2 text-primary cursor-pointer hover:underline"
+      (click)="showLessHours()"
+    >
+      Pokaż mniej godzin
+    </button>
+    }
+  </div>
+</section>

@@ -7,6 +7,7 @@ import { ContactPageComponent } from './contact-page/contact-page.component';
 import { FindExpertsComponent } from './find-experts/find-experts.component';
 import { BlogComponent } from './blog/blog.component';
 import { ResultsExpertsComponent } from './find-experts/results-experts/results-experts.component';
+import { ProfileComponent } from './profile/profile.component';
 
 export const routes: Routes = [
   { path: '', component: MainPageComponent },
@@ -16,4 +17,5 @@ export const routes: Routes = [
   { path: 'experts', component: FindExpertsComponent },
   { path: 'blog', component: BlogComponent },
   { path: 'results', component: ResultsExpertsComponent },
+  { path: 'profile', component: ProfileComponent},
 ];

@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonPrimaryComponent } from '../button-primary/button-primary.component';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-nav',
@@ -10,9 +11,11 @@ import { Router, RouterLink } from '@angular/router';
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
 })
-export class NavComponent {
+export class NavComponent  implements OnInit {
   isOpen = false;
   router = inject(Router);
+  authService = inject(AuthService);
+  isLoggedIn = false;
   specializations: string[] = ['Prawnik', 'Lekarz', 'Inżynier', 'Nauczyciel'];
   cities: string[] = ['Warszawa', 'Kraków', 'Wrocław', 'Poznań'];
   toggleMenu() {
@@ -22,6 +25,17 @@ export class NavComponent {
     } else {
       document.body.classList.remove('overflow-hidden');
     }
+  }
+  ngOnInit(): void {
+    this.authService.isLoggedIn.subscribe((loggedIn: boolean) => {
+      this.isLoggedIn = loggedIn;
+    });
+  }
+  
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/']);
+    
   }
   isLoginRoute(): boolean {
     return this.router.url === '/login';

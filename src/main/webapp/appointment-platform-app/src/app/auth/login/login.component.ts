@@ -1,18 +1,23 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { InputComponent } from '../../shared/input/input.component';
+
+import { NgClass } from '@angular/common';
+
+import { AuthService } from '../auth.service';
 
 import {
   FormBuilder,
   FormGroup,
   Validators,
+  NgControlStatus,
   ReactiveFormsModule,
-  FormControl,
-  FormsModule,
 } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { Router } from '@angular/router';
+import { ModalComponent } from '../../shared/modal/modal.component';
 @Component({
   selector: 'app-login',
-  imports: [InputComponent, ReactiveFormsModule],
+  standalone: true,
+  imports: [InputComponent, ReactiveFormsModule, ModalComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -20,12 +25,20 @@ export class LoginComponent {
   loginForm!: FormGroup;
   authService = inject(AuthService);
   fb = inject(FormBuilder);
-  errorMessage: string = '';
+  router = inject(Router);
+  message = signal('');
+  isError = signal(false);
+  visible = false;
+  constructor(private cdr: ChangeDetectorRef) {}
   ngOnInit() {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
+  }
+  closeModal() {
+    this.visible = false;
+    this.cdr.detectChanges();
   }
   onSubmit(): void {
     if (this.loginForm.valid) {
@@ -34,13 +47,31 @@ export class LoginComponent {
         .subscribe({
           next: (response) => {
             console.log('Zalogowano:', response);
+            this.visible = true;
+            this.message.set(
+              'Zalogowano poprawnie! Zostaniesz przekierowany na stronę główną za 5s'
+            );
+
+            this.isError.set(false);
+
+            this.loginForm.reset();
+            setTimeout(() => {
+              this.router.navigate(['/']);
+            }, 5000);
           },
           error: (error) => {
             console.error('Błąd logowania:', error);
-            this.errorMessage = error.message;
+            this.visible = true;
+            this.message.set('Niepoprawny email lub hasło');
+            this.isError.set(true);
+
+            this.loginForm.reset();
           },
         });
     } else {
+      this.message.set('Niepoprawne dane logowania');
+      this.isError.set(true);
+      this.visible = true;
       this.loginForm.markAllAsTouched();
     }
   }

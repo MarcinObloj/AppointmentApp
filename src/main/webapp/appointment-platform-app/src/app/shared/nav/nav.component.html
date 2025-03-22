@@ -7,7 +7,6 @@
   [class.overflow-hidden]="isOpen"
 >
   <div class="container flex mx-auto justify-between">
-    <!-- Logo -->
     <div class="flex justify-center items-center space-x-1 cursor-pointer z-50">
       <img src="img/logoIcon.svg" alt="logo" class="w-full" />
       <a routerLink="/" class="text-xl lg:text-2xl font-bold"
@@ -54,10 +53,7 @@
       </a>
     </div>
 
-    }
-
-    <!-- Desktop Menu -->
-    @if(!isBlogRoute()){
+    } @if(!isBlogRoute()){
     <ul class="hidden md:flex space-x-6 text-center">
       <app-button-primary
         [text]="'Eksperci'"
@@ -73,22 +69,25 @@
         [text]="'Kontakt'"
         routerLink="/contact"
       ></app-button-primary>
-      } @if (!isLoginRoute()) {
+      } @if(isLoggedIn){
+      <app-button-primary [text]="'Profil'"></app-button-primary>
+      <app-button-primary
+        [text]="'Wyloguj'"
+        (click)="logout()"
+      ></app-button-primary>
+      }@else { @if (!isLoginRoute()) {
       <app-button-primary
         [text]="'Zaloguj'"
         routerLink="/login"
       ></app-button-primary>
-      } @if (!isRegisterRoute() ) {
+      }
       <app-button-primary
         [text]="'Rejestracja'"
         routerLink="/register"
       ></app-button-primary>
       }
     </ul>
-    }
-
-    <!-- Mobile Menu Button -->
-    @if(!isBlogRoute()){
+    } @if(!isBlogRoute()){
     <button
       class="md:hidden cursor-pointer focus:outline-none z-50"
       (click)="toggleMenu()"
@@ -126,7 +125,7 @@
       }
     </button>
     }
-    <!-- Mobile Menu -->
+
     <div
       [ngClass]="{
         'bg-dark-section text-white': isDefaultRoute(),
@@ -155,7 +154,17 @@
           class="w-full"
           routerLink="/contact"
         ></app-button-primary>
-        } @if (!isLoginRoute()) {
+        } @if(isLoggedIn){
+        <app-button-primary
+          [text]="'Profil'"
+          class="w-full"
+        ></app-button-primary>
+        <app-button-primary
+          [text]="'Wyloguj'"
+          class="w-full"
+          (click)="logout()"
+        ></app-button-primary>
+        }@else { @if (!isLoginRoute()) {
         <app-button-primary
           [text]="'Zaloguj'"
           class="w-full"
@@ -167,6 +176,7 @@
           class="w-full"
           routerLink="/register"
         ></app-button-primary>
+        }
       </ul>
     </div>
   </div>

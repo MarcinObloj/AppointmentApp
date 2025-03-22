@@ -35,7 +35,7 @@ public class AuthController {
         try {
             return ResponseEntity.ok(authService.login(loginRequest));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Niepoprawne dane logowania"); // ⬅ Zwracamy 401!
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Niepoprawne dane logowania");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Błąd serwera");
         }

@@ -7,6 +7,15 @@
     <h2 class="text-2xl lg:text-3xl text-center mb-6">Zarejestruj się</h2>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+     @if(visible){
+      <app-modal
+      [message]="message()"
+      [isError]="isError()"
+      (close)="closeModal()"
+      [visible]="visible"
+    ></app-modal>
+     }
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <app-input
@@ -69,13 +78,30 @@
         </div>
       </div>
 
+      <div class="my-4">
+        <label for="role" class="block text-sm">Wybierz rolę</label>
+        <select
+          formControlName="role"
+          id="role"
+          class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+          required
+        >
+          <option value="EXPERT">Ekspert</option>
+          <option value="CLIENT">Klient</option>
+          <option value="ADMIN">Administrator</option>
+        </select>
+        @if(registerForm.get('role')?.touched &&
+        registerForm.get('role')?.errors?.['required']){
+        <p class="text-red-500 text-sm">Wybierz rolę</p>
+        }
+      </div>
+
       <div class="flex justify-between text-sm text-gray-600 my-4">
         <span></span>
         <a href="#" class="hover:underline focus:outline-none focus:underline">
           Masz już konto? <span class="text-orange-500">Zaloguj się!</span>
         </a>
       </div>
-
       <button
         type="submit"
         class="w-full py-2 transition duration-300 focus:outline-none hover:bg-primary hover:text-white cursor-pointer focus:bg-primary"

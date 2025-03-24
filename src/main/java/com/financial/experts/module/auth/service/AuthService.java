@@ -1,7 +1,13 @@
 package com.financial.experts.module.auth.service;
 
 import com.financial.experts.appplication.security.JwtUtil;
+import com.financial.experts.database.postgres.entity.Expert;
+import com.financial.experts.database.postgres.entity.ExpertSpecialization;
+import com.financial.experts.database.postgres.entity.Specialization;
 import com.financial.experts.database.postgres.entity.User;
+import com.financial.experts.database.postgres.repository.ExpertRepository;
+import com.financial.experts.database.postgres.repository.ExpertSpecializationRepository;
+import com.financial.experts.database.postgres.repository.SpecializationRepository;
 import com.financial.experts.database.postgres.repository.UserRepository;
 import com.financial.experts.module.auth.dto.LoginDTO;
 import com.financial.experts.module.auth.dto.RegisterDTO;
@@ -19,6 +25,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,8 +37,9 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
     private final EmailService emailService;
-
-
+    private final ExpertRepository expertRepository;
+    private final SpecializationRepository specializationRepository;
+    private final ExpertSpecializationRepository expertSpecializationRepository;
     public User register(RegisterDTO registerRequest) {
 
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
@@ -46,6 +55,23 @@ public class AuthService {
         user.setVerified(false);
 
         User savedUser = userRepository.save(user);
+        if ("EXPERT".equals(registerRequest.getRole())) {
+            Expert expert = new Expert();
+            expert.setUser(savedUser);
+            expert.setDescription(registerRequest.getDescription());
+            expert.setExperienceYears(registerRequest.getExperienceYears());
+            expertRepository.save(expert);
+            List<Long> specializations = registerRequest.getSpecializations();
+            for (Long specializationId : specializations) {
+                Specialization specialization = specializationRepository.findById(specializationId)
+                        .orElseThrow(() -> new RegistrationException("Specjalizacja o ID " + specializationId + " nie istnieje"));
+                ExpertSpecialization expertSpecialization = new ExpertSpecialization();
+                expertSpecialization.setExpert(expert);
+                expertSpecialization.setSpecialization(specialization);
+                expertSpecializationRepository.save(expertSpecialization);
+            }
+        }
+
         try {
             emailService.sendVerificationEmail(user);
         } catch (MessagingException e) {

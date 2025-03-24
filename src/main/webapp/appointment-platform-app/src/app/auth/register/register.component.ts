@@ -9,6 +9,8 @@ import { InputComponent } from '../../shared/input/input.component';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { Specialization } from '../../shared/modal/specialization.model';
+import { RegisterService } from './register.service';
 
 @Component({
   selector: 'app-register',
@@ -22,7 +24,9 @@ export class RegisterComponent {
   isError = signal(false);
   router = inject(Router);
   visible = false;
+  registerService = inject(RegisterService);
   authService = inject(AuthService);
+  specializationsList: Specialization[] = [];
   constructor(private cdr: ChangeDetectorRef) {}
   ngOnInit(): void {
     this.registerForm = new FormGroup({
@@ -34,12 +38,32 @@ export class RegisterComponent {
         Validators.minLength(6),
       ]),
       role: new FormControl('', Validators.required),
+      description: new FormControl(''),
+      experienceYears: new FormControl(''),
+      specializations: new FormControl([]),
+    });
+
+    this.registerForm.get('role')?.valueChanges.subscribe((role) => {
+      if (role === 'EXPERT') {
+        this.registerForm
+          .get('experienceYears')
+          ?.setValidators(Validators.required);
+      } else {
+        this.registerForm.get('description')?.clearValidators();
+        this.registerForm.get('experienceYears')?.clearValidators();
+      }
+      this.registerForm.get('description')?.updateValueAndValidity();
+      this.registerForm.get('experienceYears')?.updateValueAndValidity();
+    });
+    this.registerService.getAllSpecializations().subscribe((data) => {
+      this.specializationsList = data;
+      console.log('Loaded specializations:', this.specializationsList);
     });
   }
 
   closeModal() {
     this.visible = false;
-    this.cdr.detectChanges(); 
+    this.cdr.detectChanges();
   }
 
   onSubmit(): void {

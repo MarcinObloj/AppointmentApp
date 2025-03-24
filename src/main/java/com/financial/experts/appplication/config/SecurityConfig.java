@@ -44,7 +44,8 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/api/auth/**",
-                                "api/verify"
+                                "api/verify",
+                                "api/specializations"
                         ).permitAll()
 
 

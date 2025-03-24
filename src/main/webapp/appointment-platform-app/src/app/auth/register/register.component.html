@@ -7,14 +7,12 @@
     <h2 class="text-2xl lg:text-3xl text-center mb-6">Zarejestruj się</h2>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-     @if(visible){
       <app-modal
-      [message]="message()"
-      [isError]="isError()"
-      (close)="closeModal()"
-      [visible]="visible"
-    ></app-modal>
-     }
+        [message]="message()"
+        [isError]="isError()"
+        (close)="closeModal()"
+        [visible]="visible"
+      ></app-modal>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
@@ -25,6 +23,7 @@
             [placeholder]="'Wprowadź imię'"
             [required]="true"
           ></app-input>
+
           @if(registerForm.get('firstName')?.touched &&
           registerForm.get('firstName')?.errors?.['required']){
           <p class="text-red-500 text-sm">Wpisz poprawne imię</p>
@@ -39,11 +38,13 @@
             [placeholder]="'Wprowadź nazwisko'"
             [required]="true"
           ></app-input>
+
           @if(registerForm.get('lastName')?.touched &&
           registerForm.get('lastName')?.errors?.['required']){
           <p class="text-red-500 text-sm">Wpisz poprawne nazwisko</p>
           }
         </div>
+
         <div>
           <app-input
             formControlName="password"
@@ -52,6 +53,7 @@
             [placeholder]="'Wprowadź hasło'"
             [required]="true"
           ></app-input>
+
           @if(registerForm.get('password')?.touched &&
           registerForm.get('password')?.errors?.['required']){
           <p class="text-red-500 text-sm">Wprowadź hasło</p>
@@ -71,6 +73,7 @@
             [placeholder]="'Podaj email'"
             [required]="true"
           ></app-input>
+
           @if(registerForm.get('email')?.touched &&
           registerForm.get('email')?.errors?.['required']){
           <p class="text-red-500 text-sm">Wproadz email</p>
@@ -90,11 +93,76 @@
           <option value="CLIENT">Klient</option>
           <option value="ADMIN">Administrator</option>
         </select>
+
         @if(registerForm.get('role')?.touched &&
         registerForm.get('role')?.errors?.['required']){
         <p class="text-red-500 text-sm">Wybierz rolę</p>
         }
       </div>
+
+      @if(registerForm.get('role')?.value === 'EXPERT'){
+      <div>
+        <div class="my-4">
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="4"
+            class="mt-1 p-2 w-full border-b focus:outline-none focus:border-b-2"
+            placeholder="Wprowadz opis"
+            required
+          ></textarea>
+
+          @if(registerForm.get('description')?.touched &&
+          registerForm.get('description')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź opis</p>
+          }
+        </div>
+
+        <div class="my-4">
+          <app-input
+            formControlName="experienceYears"
+            [label]="'Lata doświadczenia'"
+            [type]="'number'"
+            [placeholder]="'Wprowadź lata doświadczenia'"
+            [required]="true"
+          ></app-input>
+          @if(registerForm.get('experienceYears')?.touched &&
+          registerForm.get('experienceYears')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź lata doświadczenia</p>
+          }
+        </div>
+
+        <div class="my-4">
+          <label for="specializations" class="block text-sm"
+            >Wybierz specjalizacje</label
+          >
+          <select
+            formControlName="specializations"
+            id="specializations"
+            class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+            multiple
+            required
+          >
+            @for (specialization of specializationsList; track
+            specialization.id) {
+
+            <option
+              
+              [value]="specialization.id"
+            >
+              
+             {{specialization.id}}. {{ specialization.name }}
+            </option>
+            }
+          </select>
+
+          @if(registerForm.get('specializations')?.touched &&
+          registerForm.get('specializations')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wybierz specjalizacje</p>
+          }
+        </div>
+      </div>
+      }
 
       <div class="flex justify-between text-sm text-gray-600 my-4">
         <span></span>

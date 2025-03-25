@@ -40,9 +40,14 @@ export class AuthService {
       })
     );
   }
-  register(registerData: User):Observable<User> {
-    return this.HttpClient.post<User>(`${this.apiUrl}/register`, registerData);
+  register(registerData: FormData): Observable<any> {
+    return this.HttpClient.post(`${this.apiUrl}/register`, registerData).pipe(
+      catchError((error) => {
+        return throwError(() => new Error('Wystąpił błąd podczas rejestracji'));
+      })
+    );
   }
+
   logout(): void {
     sessionStorage.removeItem('token');
     this.$isLoggedIn.next(false);

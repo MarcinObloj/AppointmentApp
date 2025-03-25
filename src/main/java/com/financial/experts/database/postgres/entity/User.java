@@ -33,6 +33,9 @@ public class User {
     @Column(name="verified", nullable = false)
     private boolean verified = false;
 
+    @Column(name="photo_url")
+    private String photoUrl;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

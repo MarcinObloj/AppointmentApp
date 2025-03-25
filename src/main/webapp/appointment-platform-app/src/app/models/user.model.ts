@@ -7,4 +7,5 @@ export interface User {
     description?: string; 
     experienceYears?: number; 
     specializations?: number[]; 
+    photoUrl?: string;
   }

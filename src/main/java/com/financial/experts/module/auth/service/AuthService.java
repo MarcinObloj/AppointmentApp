@@ -1,5 +1,7 @@
 package com.financial.experts.module.auth.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.financial.experts.appplication.security.JwtUtil;
 import com.financial.experts.database.postgres.entity.Expert;
 import com.financial.experts.database.postgres.entity.ExpertSpecialization;
@@ -25,7 +27,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +44,7 @@ public class AuthService {
     private final ExpertRepository expertRepository;
     private final SpecializationRepository specializationRepository;
     private final ExpertSpecializationRepository expertSpecializationRepository;
+    private final Cloudinary cloudinary;
     public User register(RegisterDTO registerRequest) {
 
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
@@ -53,12 +58,18 @@ public class AuthService {
         user.setLastName(registerRequest.getLastName());
         user.setRole(registerRequest.getRole());
         user.setVerified(false);
-
+        try {
+            Map uploadResult = cloudinary.uploader().upload(registerRequest.getPhoto().getBytes(), ObjectUtils.emptyMap());
+            user.setPhotoUrl(uploadResult.get("url").toString());
+        } catch (IOException e) {
+            throw new RegistrationException("Nie udało się przesłać zdjęcia");
+        }
         User savedUser = userRepository.save(user);
         if ("EXPERT".equals(registerRequest.getRole())) {
             Expert expert = new Expert();
             expert.setUser(savedUser);
             expert.setDescription(registerRequest.getDescription());
+
             expert.setExperienceYears(registerRequest.getExperienceYears());
             expertRepository.save(expert);
             List<Long> specializations = registerRequest.getSpecializations();

@@ -1,13 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { ButtonPrimaryComponent } from '../button-primary/button-primary.component';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
+import { Specialization } from '../modal/specialization.model';
+import { RegisterService } from '../../auth/register/register.service';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [CommonModule, ButtonPrimaryComponent, RouterLink],
+  imports: [ButtonPrimaryComponent, RouterLink,NgClass],
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
 })
@@ -16,8 +19,10 @@ export class NavComponent  implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
   isLoggedIn = false;
-  specializations: string[] = ['Prawnik', 'Lekarz', 'Inżynier', 'Nauczyciel'];
   cities: string[] = ['Warszawa', 'Kraków', 'Wrocław', 'Poznań'];
+  specializationsList:Specialization[]= [];
+  registerService= inject(RegisterService);
+   
   toggleMenu() {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
@@ -29,6 +34,11 @@ export class NavComponent  implements OnInit {
   ngOnInit(): void {
     this.authService.isLoggedIn.subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
+    });
+
+    this.registerService.getAllSpecializations().subscribe((data) => {
+      this.specializationsList = data;
+      console.log('Loaded specializations:', this.specializationsList);
     });
   }
   

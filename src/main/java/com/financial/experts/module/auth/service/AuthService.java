@@ -5,6 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.financial.experts.appplication.security.JwtUtil;
 import com.financial.experts.database.postgres.entity.Expert;
 import com.financial.experts.database.postgres.entity.ExpertSpecialization;
+import com.financial.experts.database.postgres.entity.Service;
 import com.financial.experts.database.postgres.entity.Specialization;
 import com.financial.experts.database.postgres.entity.User;
 import com.financial.experts.database.postgres.repository.ExpertRepository;
@@ -12,9 +13,11 @@ import com.financial.experts.database.postgres.repository.ExpertSpecializationRe
 import com.financial.experts.database.postgres.repository.SpecializationRepository;
 import com.financial.experts.database.postgres.repository.UserRepository;
 import com.financial.experts.module.auth.dto.LoginDTO;
+import com.financial.experts.module.auth.dto.LoginResponseDTO;
 import com.financial.experts.module.auth.dto.RegisterDTO;
 import com.financial.experts.module.auth.exception.LoginException;
 import com.financial.experts.module.auth.exception.RegistrationException;
+import com.financial.experts.module.expert.service.ExpertService;
 import com.financial.experts.module.mail.service.EmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -25,13 +28,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Service
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -45,6 +49,7 @@ public class AuthService {
     private final SpecializationRepository specializationRepository;
     private final ExpertSpecializationRepository expertSpecializationRepository;
     private final Cloudinary cloudinary;
+
     public User register(RegisterDTO registerRequest) {
 
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
@@ -69,8 +74,16 @@ public class AuthService {
             Expert expert = new Expert();
             expert.setUser(savedUser);
             expert.setDescription(registerRequest.getDescription());
-
             expert.setExperienceYears(registerRequest.getExperienceYears());
+            expert.setCity(registerRequest.getCity());
+            expert.setStreet(registerRequest.getStreet());
+            expert.setClientTypes(registerRequest.getClientTypes());
+            expert.setAgeGroups(registerRequest.getAgeGroups());
+
+            List<Service> services = registerRequest.getServices().stream()
+                    .map(serviceDTO -> new Service(serviceDTO.getName(), serviceDTO.getPrice()))
+                    .collect(Collectors.toList());
+            expert.setServices(services);
             expertRepository.save(expert);
             List<Long> specializations = registerRequest.getSpecializations();
             for (Long specializationId : specializations) {
@@ -91,7 +104,8 @@ public class AuthService {
 
         return savedUser;
     }
-    public String login(LoginDTO loginRequest) {
+
+    public LoginResponseDTO login(LoginDTO loginRequest) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
@@ -102,13 +116,23 @@ public class AuthService {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getEmail());
 
-
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new LoginException("Użytkownik nie istnieje"));
+
         if (!user.isVerified()) {
             throw new LoginException("Konto nie zostało zweryfikowane");
         }
 
-        return jwtUtil.generateToken(userDetails.getUsername());
+        String token = jwtUtil.generateToken(userDetails.getUsername());
+        String role = user.getRole();
+
+        Expert expert = null;
+        if ("EXPERT".equals(role)) {
+            expert = expertRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new LoginException("Expert not found"));
+        }
+
+        return new LoginResponseDTO(token, role, user.getId(), user.getFirstName(), user.getLastName(), user.getPhotoUrl(), expert);
     }
+
 }

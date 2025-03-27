@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -32,4 +33,19 @@ public class Expert {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @Column(name="city")
+    private String city;
+    @Column(name="street")
+    private String street;
+
+    @ElementCollection
+    private List<String> clientTypes;
+
+    @ElementCollection
+    private List<String> ageGroups;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "expert_id")
+    private List<Service> services;
+
 }

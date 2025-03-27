@@ -98,20 +98,16 @@
           @if(!selectedFile){
           <span class="text-gray-500">Kliknij, aby dodać zdjęcie</span>
           }@else {
-          <span class="text-gray-700 font-medium">{{
-            selectedFile?.name
-          }}</span>
+          <span class="text-gray-700 font-medium">{{ selectedFile.name }}</span>
           }
         </div>
         @if(selectedFilePreview){
         <div class="mt-2 relative w-32 mx-auto">
-         
           <img
             [src]="selectedFilePreview"
             alt="Podgląd zdjęcia"
             class="h-32 object-cover rounded-md shadow-md block w-full"
           />
-
 
           <button
             class="absolute top-2 right-2 bg-white text-red-500 p-2 rounded-full shadow-md transition-opacity opacity-70 hover:opacity-100 hover:bg-red-500 hover:text-white"
@@ -120,7 +116,6 @@
             ✖
           </button>
 
-          
           <p class="text-sm text-gray-700 mt-2 text-center">
             {{ selectedFile?.name }}
           </p>
@@ -202,6 +197,121 @@
           registerForm.get('specializations')?.errors?.['required']){
           <p class="text-red-500 text-sm">Wybierz specjalizacje</p>
           }
+        </div>
+        <div class="my-4">
+          <label for="city" class="block text-sm">Miasto</label>
+          <input
+            id="city"
+            formControlName="city"
+            type="text"
+            class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+          />
+
+          @if(registerForm.get('city')?.touched &&
+          registerForm.get('city')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź miasto</p>
+          }
+        </div>
+
+        <div class="my-4">
+          <label for="street" class="block text-sm">Ulica</label>
+          <input
+            id="street"
+            formControlName="street"
+            type="text"
+            class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+          />
+
+          @if (registerForm.get('street')?.touched &&
+          registerForm.get('street')?.errors?.['required']) {
+          <p class="text-red-500 text-sm">Wprowadź ulicę</p>
+          }
+        </div>
+
+        <div class="my-4">
+          <label for="clientTypes" class="block text-sm">Grupy klientów</label>
+          <input
+            id="clientTypes"
+            formControlName="clientTypes"
+            type="text"
+            class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+          />
+
+          @if(registerForm.get('clientTypes')?.touched &&
+          registerForm.get('clientTypes')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź typy klientów</p>
+          }
+        </div>
+
+        <div class="my-4">
+          <label for="ageGroups" class="block text-sm">Age Groups</label>
+          <input
+            id="ageGroups"
+            formControlName="ageGroups"
+            type="text"
+            class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+          />
+
+          @if(registerForm.get('ageGroups')?.touched &&
+          registerForm.get('ageGroups')?.errors?.['required']){
+          <p class="text-red-500 text-sm">Wprowadź grupy wiekowe</p>
+          }
+        </div>
+
+        <div formArrayName="services">
+          @for (service of services.controls; track $index) {
+            <div
+           
+            [formGroupName]="$index"
+            class="my-4"
+          >
+            <label for="serviceName{{ $index }}" class="block text-sm"
+              >Nazwa usługi</label
+            >
+            <input
+              id="serviceName{{ $index }}"
+              formControlName="name"
+              type="text"
+              class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+            />
+
+            @if(service.get('name')?.touched &&
+            service.get('name')?.errors?.['required']){
+            <p class="text-red-500 text-sm">Wprowadź nazwę usługi</p>
+            }
+            <label for="servicePrice{{ $index }}" class="block text-sm"
+              >Cena usługi</label
+            >
+            <input
+              id="servicePrice{{ $index }}"
+              formControlName="price"
+              type="number"
+              class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+            />
+
+            @if (service.get('price')?.touched &&
+            service.get('price')?.errors?.['required']) {
+            <p class="text-red-500 text-sm">Wprowadź cenę usługi</p>
+            } @if (service.get('price')?.touched &&
+            service.get('price')?.errors?.['min']) {
+            <p  class="text-red-500 text-sm">
+              Cena musi być większa lub równa 0
+            </p>
+            }
+
+            <button
+              type="button"
+              (click)="removeService($index)"
+              class="text-red-500"
+            >
+              Usuń usługę
+            </button>
+          </div>
+          }
+        
+          <button type="button" (click)="addService()" class="text-primary">
+            Dodaj usługę
+          </button>
         </div>
       </div>
       }

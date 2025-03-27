@@ -4,6 +4,7 @@ import {
   FormControl,
   Validators,
   ReactiveFormsModule,
+  FormArray,
 } from '@angular/forms';
 import { InputComponent } from '../../shared/input/input.component';
 import { AuthService } from '../auth.service';
@@ -30,6 +31,7 @@ export class RegisterComponent {
   specializationsList: Specialization[] = [];
   constructor(private cdr: ChangeDetectorRef) {}
   selectedFilePreview: string | null = null;
+ 
   ngOnInit(): void {
     this.registerForm = new FormGroup({
       firstName: new FormControl('', Validators.required),
@@ -43,7 +45,12 @@ export class RegisterComponent {
       specializations: new FormControl([]),
       experienceYears: new FormControl(null),
       description: new FormControl(''),
-      photo: new FormControl(null, Validators.required),
+      photo: new FormControl(null),
+      city: new FormControl(''),
+      street: new FormControl(''),
+      ageGroups: new FormControl([]),
+      clientTypes: new FormControl([]),
+      services: new FormArray([]),
     });
 
     this.registerForm.get('role')?.valueChanges.subscribe((role) => {
@@ -51,28 +58,64 @@ export class RegisterComponent {
         this.registerForm
           .get('experienceYears')
           ?.setValidators(Validators.required);
+        this.registerForm.get('city')?.setValidators(Validators.required);
+        this.registerForm.get('street')?.setValidators(Validators.required);
+        this.registerForm
+          .get('clientTypes')
+          ?.setValidators(Validators.required);
+        this.registerForm.get('ageGroups')?.setValidators(Validators.required);
+        this.registerForm.get('services')?.setValidators([
+          Validators.required,
+          Validators.minLength(1), 
+        ]);
       } else {
-        this.registerForm.get('description')?.clearValidators();
         this.registerForm.get('experienceYears')?.clearValidators();
+        this.registerForm.get('city')?.clearValidators();
+        this.registerForm.get('street')?.clearValidators();
+        this.registerForm.get('clientTypes')?.clearValidators();
+        this.registerForm.get('ageGroups')?.clearValidators();
+        this.registerForm.get('services')?.clearValidators();
       }
-      this.registerForm.get('description')?.updateValueAndValidity();
+
+      // Aktualizacja stanu walidacji pól
       this.registerForm.get('experienceYears')?.updateValueAndValidity();
+      this.registerForm.get('city')?.updateValueAndValidity();
+      this.registerForm.get('street')?.updateValueAndValidity();
+      this.registerForm.get('clientTypes')?.updateValueAndValidity();
+      this.registerForm.get('ageGroups')?.updateValueAndValidity();
+      this.registerForm.get('services')?.updateValueAndValidity();
     });
+
     this.registerService.getAllSpecializations().subscribe((data) => {
       this.specializationsList = data;
       console.log('Loaded specializations:', this.specializationsList);
     });
   }
-  removeFile(){
+
+  removeFile() {
     this.selectedFile = null;
     this.selectedFilePreview = null;
+  }
+  get services(): FormArray {
+    return this.registerForm.get('services') as FormArray;
+  }
+  removeService(index: number): void {
+    this.services.removeAt(index);
+  }
+
+  addService(): void {
+    this.services.push(
+      new FormGroup({
+        name: new FormControl('', Validators.required),
+        price: new FormControl('', [Validators.required, Validators.min(0)]),
+      })
+    );
   }
   onFileChange(event: Event): void {
     const fileInput = event.target as HTMLInputElement;
     if (fileInput.files && fileInput.files.length > 0) {
       this.selectedFile = fileInput.files[0];
-  
-    
+
       const reader = new FileReader();
       reader.onload = (e) => {
         this.selectedFilePreview = e.target?.result as string;
@@ -88,44 +131,35 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       const formData = new FormData();
-
-      // Dodajemy wartości z formularza do FormData
+  
       Object.keys(this.registerForm.controls).forEach((key) => {
         const value = this.registerForm.get(key)?.value;
-
-        if (value !== null && value !== undefined && value !== '') {
-          if (Array.isArray(value)) {
-            value.forEach((item) => {
-              formData.append(`${key}[]`, item.toString()); // Upewniamy się, że wartości tablicowe są stringami
-            });
-          } else if (key !== 'photo') {
-            formData.append(key, value.toString());
-          }
+        if (key === 'services' && Array.isArray(value)) {
+          value.forEach((service, index) => {
+            formData.append(`services[${index}].name`, service.name);
+            formData.append(`services[${index}].price`, service.price.toString());
+          });
+        } else if (value !== null && value !== undefined && value !== '') {
+          formData.append(key, value.toString());
         }
       });
-
-      // Obsługa zdjęcia - upewniamy się, że wysyłamy plik, a nie stringową ścieżkę
+  
       if (this.selectedFile) {
         formData.append('photo', this.selectedFile, this.selectedFile.name);
       }
-
-      // Wysyłanie formularza do serwisu AuthService
+  
       this.authService.register(formData).subscribe({
         next: (response) => {
           console.log('Zarejestrowano:', response);
-          this.message.set(
-            'Zarejestrowano poprawnie! Aby aktywować konto, wejdź w link aktywacyjny w twoim mailu!'
-          );
+          this.message.set('Zarejestrowano poprawnie! Sprawdź email.');
           this.isError.set(false);
           this.registerForm.reset();
-          this.selectedFile = null; // Resetujemy wybrany plik
+          this.selectedFile = null;
           this.visible = true;
         },
         error: (error) => {
           console.error('Błąd rejestracji:', error);
-          this.message.set(
-            'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.'
-          );
+          this.message.set('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
           this.isError.set(true);
           this.visible = true;
         },
@@ -137,4 +171,5 @@ export class RegisterComponent {
       this.isError.set(true);
     }
   }
+  
 }

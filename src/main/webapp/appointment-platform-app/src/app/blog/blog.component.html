@@ -102,30 +102,33 @@
   >
     <h2 class="text-2xl mb-4">Ostatnie zadane pytania</h2>
 
+    @for(question of questions; track question.id){
     <div class="mb-6 border p-4">
       <div class="border-1 p-4">
-        <p class="mb-2">Witam, jak skutecznie oszczędzać na emeryturze?</p>
+        <p class="mb-2">
+          {{ question.content }} ~ {{ question.client.firstName }}
+        </p>
       </div>
       <div class="bg-gray-100 lg:flex gap-4 p-4 my-4">
+        @if(question.answers && question.answers.length > 0){
         <p class="flex-grow text-gray-700 text-sm w-full lg:w-2/3">
-          Dzień dobry, oszczędzanie na emeryturę powinno opierać się na
-          dywersyfikacji źródeł dochodu, takich jak IKZE, IKE oraz inwestycje
-          długoterminowe. Warto także rozważyć ubezpieczenia rentowe oraz
-          prywatne fundusze inwestycyjne...
+          {{ question.answers[0]?.content }}
         </p>
         <div class="m-4 flex gap-2 mx-auto text-center">
           <div>
             <img
-              src="img/expert2.png"
+              [src]="currentExpert?.photoUrl"
               alt="Ekspert"
-              class="min-w-12 min-h-12 l mb-1 lg:w-full lg:h-1/2"
+              class="max-w-12 max-h-12 l mb-1 lg:w-full lg:h-1/2"
             />
           </div>
           <div>
             <div>
-              <p class="font-bold">Piotr Nowak</p>
+              <p class="font-bold">{{ currentExpert?.firstName }}</p>
               <p class="text-sm text-gray-500">
-                Doradca emerytalny<br />Warszawa
+                {{ currentExpert?.expert?.street }}<br />{{
+                  currentExpert?.expert?.city
+                }}
               </p>
               <p class="text-yellow-500 mb-2">★★★★★</p>
             </div>
@@ -135,42 +138,29 @@
             ></app-button-primary>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="mb-6 border p-4">
-      <div class="border-1 p-4">
-        <p class="mb-2">Witam, jak skutecznie oszczędzać na emeryturze?</p>
-      </div>
-      <div class="bg-gray-100 lg:flex gap-4 p-4 my-4">
+        } @else {
         <p class="flex-grow text-gray-700 text-sm w-full lg:w-2/3">
-          Dzień dobry, oszczędzanie na emeryturę powinno opierać się na
-          dywersyfikacji źródeł dochodu, takich jak IKZE, IKE oraz inwestycje
-          długoterminowe. Warto także rozważyć ubezpieczenia rentowe oraz
-          prywatne fundusze inwestycyjne...
+          Brak odpowiedzi
         </p>
-        <div class="m-4 flex gap-2 mx-auto text-center">
-          <div>
-            <img
-              src="img/expert2.png"
-              alt="Ekspert"
-              class="min-w-12 min-h-12 l mb-1 lg:w-full lg:h-1/2"
-            />
-          </div>
-          <div>
-            <div>
-              <p class="font-bold">Piotr Nowak</p>
-              <p class="text-sm text-gray-500">
-                Doradca emerytalny<br />Warszawa
-              </p>
-              <p class="text-yellow-500 mb-2">★★★★★</p>
-            </div>
-            <app-button-primary
-              [text]="'Umów wizytę'"
-              class="max-w-1/2"
-            ></app-button-primary>
-          </div>
+        @if(isExpert){
+        <div class="w-full mt-4">
+          <textarea
+            [(ngModel)]="newAnswer[question.id]"
+            class="w-full p-2 border border-gray-300"
+            rows="4"
+            placeholder="Dodaj odpowiedź..."
+          >
+          </textarea>
+          <button
+            (click)="submitAnswer(question.id)"
+            class="mt-2 py-2 px-4 border-1 hover:border-primary hover:text-primary transition duration-300"
+          >
+            Dodaj odpowiedź
+          </button>
         </div>
+        } }
       </div>
     </div>
+    }
   </section>
 </main>

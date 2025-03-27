@@ -20,15 +20,19 @@
         class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
       >
         <option>Specjalizacja</option>
-        <option *ngFor="let spec of specializations" [value]="spec">
-          {{ spec }}
+        @for (spec of specializationsList; track spec.id) {
+        <option [value]="spec">
+          {{ spec.name }}
         </option>
+        }
       </select>
       <select
         class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
       >
         <option>Miasto lub dzielnica</option>
-        <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+        @for (city of cities; track $index) {
+        <option [value]="city">{{ city }}</option>
+        }
       </select>
       <a class="p-2" routerLink="/results">
         <svg

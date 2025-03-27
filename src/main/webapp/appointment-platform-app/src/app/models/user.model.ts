@@ -1,11 +1,12 @@
 export interface User {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    description?: string; 
-    experienceYears?: number; 
-    specializations?: number[]; 
-    photoUrl?: string;
-  }
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string; 
+  photoUrl: string;
+  role: 'CLIENT' | 'EXPERT' | 'ADMIN'; 
+  createdAt: string; 
+  updatedAt: string;
+  verified: boolean;
+}

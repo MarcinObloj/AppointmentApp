@@ -17,5 +17,5 @@ export const routes: Routes = [
   { path: 'experts', component: FindExpertsComponent },
   { path: 'blog', component: BlogComponent },
   { path: 'results', component: ResultsExpertsComponent },
-  { path: 'profile', component: ProfileComponent},
+  { path: 'profile/:id', component: ProfileComponent},
 ];

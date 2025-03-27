@@ -1,7 +1,5 @@
 package com.financial.experts.module.blog.service;
 
-import com.financial.experts.database.postgres.entity.BlogPost;
-import com.financial.experts.database.postgres.repository.BlogPostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

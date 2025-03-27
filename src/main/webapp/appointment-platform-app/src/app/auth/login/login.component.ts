@@ -42,37 +42,38 @@ export class LoginComponent {
   }
   onSubmit(): void {
     if (this.loginForm.valid) {
+      console.log("🟢 Wysyłane dane:", this.loginForm.value);
+  
       this.authService
         .login(this.loginForm.value.username, this.loginForm.value.password)
         .subscribe({
           next: (response) => {
-            console.log('Zalogowano:', response);
+            console.log("✅ Zalogowano poprawnie:", response);
             this.visible = true;
-            this.message.set(
-              'Zalogowano poprawnie! Zostaniesz przekierowany na stronę główną za 5s'
-            );
-
+            this.message.set('Zalogowano poprawnie!');
+  
             this.isError.set(false);
-
             this.loginForm.reset();
+  
             setTimeout(() => {
               this.router.navigate(['/']);
             }, 5000);
           },
           error: (error) => {
-            console.error('Błąd logowania:', error);
+            console.error("🔴 Błąd logowania:", error);
             this.visible = true;
             this.message.set('Niepoprawny email lub hasło');
             this.isError.set(true);
-
             this.loginForm.reset();
           },
         });
     } else {
+      console.log("🔴 Formularz jest niepoprawny:", this.loginForm.errors);
       this.message.set('Niepoprawne dane logowania');
       this.isError.set(true);
       this.visible = true;
       this.loginForm.markAllAsTouched();
     }
   }
+  
 }

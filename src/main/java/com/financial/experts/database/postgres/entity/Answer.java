@@ -25,7 +25,7 @@ public class Answer {
 
     @ManyToOne
     @JoinColumn(name = "expert_id", nullable = false)
-    @JsonIgnore
+
     private Expert expert;
 
     @Column(nullable = false, columnDefinition = "TEXT")

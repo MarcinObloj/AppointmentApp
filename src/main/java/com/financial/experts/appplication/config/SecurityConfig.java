@@ -47,7 +47,9 @@ public class SecurityConfig {
                                 "api/verify",
                                 "api/specializations",
                                 "blog/**",
-                                "answers/**"
+                                "answers/**",
+                                "questions/**",
+                                "users/**"
                         ).permitAll()
 
 

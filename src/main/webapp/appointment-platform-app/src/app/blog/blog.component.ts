@@ -1,18 +1,20 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { Card } from '../models/card.model';
 import { CardComponent } from '../shared/card/card.component';
 import { ButtonPrimaryComponent } from '../shared/button-primary/button-primary.component';
 import { QuestionService } from './question.service';
-import { Answer, Question } from '../models/question.model';
+import { Question } from '../models/question.model';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../auth/auth.service';
-import { Expert } from '../models/expert.model';
+
 import { LoginResponse } from '../models/loginResponse.model';
 import { AnswerService } from './answer.service';
+import { Answer, AnswerResponseDTO } from '../models/answer.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-blog',
-  imports: [CardComponent, ButtonPrimaryComponent, FormsModule],
+  imports: [CardComponent, ButtonPrimaryComponent, FormsModule,RouterLink],
   templateUrl: './blog.component.html',
   styleUrl: './blog.component.css',
 })
@@ -21,9 +23,11 @@ export class BlogComponent implements OnInit {
   authService = inject(AuthService);
   answerService = inject(AnswerService);
   questions: Question[] = [];
+  cdr = inject(ChangeDetectorRef);
   isExpert: boolean = false;
   currentExpert: LoginResponse | null = null;
   newAnswer: { [key: string]: string } = {};
+  newQuestionContent: string = '';
   ngOnInit(): void {
     this.questionService.getQuestions().subscribe((data) => {
       this.questions = data;
@@ -31,7 +35,6 @@ export class BlogComponent implements OnInit {
     });
     this.authService.isLoggedIn.subscribe((isLoggedIn) => {
       if (isLoggedIn) {
-        // Sprawdzamy rolę użytkownika (jeśli masz tę informację w sessionStorage
         const role = sessionStorage.getItem('role');
         if (role === 'EXPERT') {
           this.isExpert = true;
@@ -42,6 +45,27 @@ export class BlogComponent implements OnInit {
         }
       }
     });
+  }
+  submitQuestion(): void {
+    const clientId = this.authService.getClientId();
+    console.log('Client ID z tokena:', clientId); 
+
+    if (clientId && this.newQuestionContent.trim()) {
+      this.questionService
+        .addQuestion({
+          clientId: clientId,
+          content: this.newQuestionContent.trim(),
+        })
+        .subscribe({
+          next: (question) => {
+            this.questions = [...this.questions, question];
+            this.newQuestionContent = '';
+          },
+          error: (error: any) => {
+            console.error('Błąd dodawania pytania:', error);
+          },
+        });
+    }
   }
   cards: Card[] = [
     {
@@ -80,15 +104,43 @@ export class BlogComponent implements OnInit {
         questionId: questionId,
         expertId: this.currentExpert.expert!.id,
       };
+
       this.answerService
         .addAnswer(answer, questionId, this.currentExpert.expert!.id)
-        .subscribe((response) => {
+        .subscribe((response: AnswerResponseDTO) => {
           console.log('Answer added:', response);
-          // Odśwież pytania po dodaniu odpowiedzi
-          this.questionService.getQuestions().subscribe((data) => {
-            this.questions = data; 
-            console.log('Updated questions:', this.questions);
-          });
+
+          const questionIndex = this.questions.findIndex(
+            (q) => q.id === questionId
+          );
+          if (questionIndex !== -1) {
+            // Inicjalizuj tablicę answers jeśli nie istnieje
+            if (!this.questions[questionIndex].answers) {
+              this.questions[questionIndex].answers = [];
+            }
+
+           
+            const newAnswer = {
+              ...response,
+              expert: {
+                ...response.expert,
+               
+                user: response.expert.user || {
+                  photoUrl: response.expert.photoUrl,
+                  firstName: response.expert.firstName,
+                  lastName: response.expert.lastName,
+                },
+              },
+            };
+
+            this.questions[questionIndex].answers!.push(newAnswer);
+
+            // Utwórz nową referencję tablicy pytań
+            this.questions = [...this.questions];
+          }
+
+          this.newAnswer[questionId] = '';
+          this.cdr.detectChanges();
         });
     }
   }

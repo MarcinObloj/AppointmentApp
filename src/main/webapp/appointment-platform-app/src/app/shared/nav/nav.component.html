@@ -15,7 +15,9 @@
     </div>
 
     @if(isBlogRoute() ){
-    <div class="flex items-center border border-gray-300 rounded px-2">
+    <div
+      class="flex justify-center items-center border border-gray-300 rounded px-2"
+    >
       <select
         class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
       >
@@ -26,15 +28,14 @@
         </option>
         }
       </select>
-      <select
-        class="border-r border-gray-300 p-2 focus:outline-none cursor-pointer pr-4"
-      >
-        <option>Miasto lub dzielnica</option>
-        @for (city of cities; track $index) {
-        <option [value]="city">{{ city }}</option>
-        }
-      </select>
-      <a class="p-2" routerLink="/results">
+      <app-city-autocomplete
+        [control]="cityControl"
+        (citySelected)="onCitySelected($event)"
+        [label]="''"
+        [placeholder]="'Miasto lub dzielnica'"
+        class="border-r border-gray-300 max-w-2/3 max-h-16"
+      ></app-city-autocomplete>
+      <a class="p-2 mx-auto" routerLink="/results">
         <svg
           class="cursor-pointer"
           width="20px"

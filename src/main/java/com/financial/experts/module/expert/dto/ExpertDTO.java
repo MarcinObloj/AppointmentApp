@@ -6,10 +6,10 @@ import java.util.List;
 
 @Data
 public class ExpertDTO {
-    private String description;
     private Long id;
-   private Integer experienceYears;
-    private List<String> specializations;
-    private List<String> languages;
-    private List<String> locations;
+    private String photoUrl;
+    private String firstName;
+    private String lastName;
+    private String street;
+    private String city;
 }

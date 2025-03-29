@@ -1,4 +1,5 @@
 <main class="mx-2">
+  @if(!isExpert){
   <section
     class="container mx-auto p-6 bg-white border border-gray-300 lg:max-w-2/3 mb-4"
   >
@@ -28,6 +29,7 @@
       <textarea
         class="w-full p-3 border-b-1 focus:outline-none focus:border-b-2"
         rows="4"
+        [(ngModel)]="newQuestionContent"
         placeholder="Zadaj swoje pytanie tutaj"
       ></textarea>
     </div>
@@ -53,6 +55,7 @@
 
     <button
       class="mt-6 hover:bg-primary hover:text-white px-6 py-2 rounded-lg focus:bg-primary transition duration-300 cursor-pointer focus:outline-none"
+      (click)="submitQuestion()"
     >
       Wyślij wiadomość
     </button>
@@ -97,6 +100,7 @@
       </div>
     </div>
   </section>
+  }
   <section
     class="container mx-auto p-6 bg-white border border-gray-300 lg:max-w-2/3 mb-4"
   >
@@ -112,22 +116,24 @@
       <div class="bg-gray-100 lg:flex gap-4 p-4 my-4">
         @if(question.answers && question.answers.length > 0){
         <p class="flex-grow text-gray-700 text-sm w-full lg:w-2/3">
-          {{ question.answers[0]?.content }}
+          {{ question.answers[0].content }}
         </p>
         <div class="m-4 flex gap-2 mx-auto text-center">
           <div>
             <img
-              [src]="currentExpert?.photoUrl"
+              [src]="question.answers[0].expert.user.photoUrl"
               alt="Ekspert"
               class="max-w-12 max-h-12 l mb-1 lg:w-full lg:h-1/2"
             />
           </div>
           <div>
             <div>
-              <p class="font-bold">{{ currentExpert?.firstName }}</p>
+              <p class="font-bold">
+                {{ question.answers[0].expert.user.firstName }}
+              </p>
               <p class="text-sm text-gray-500">
-                {{ currentExpert?.expert?.street }}<br />{{
-                  currentExpert?.expert?.city
+                {{ question.answers[0].expert.street }}<br />{{
+                  question.answers[0].expert.city
                 }}
               </p>
               <p class="text-yellow-500 mb-2">★★★★★</p>
@@ -135,6 +141,7 @@
             <app-button-primary
               [text]="'Umów wizytę'"
               class="max-w-1/2"
+              [routerLink]="'/profile/' + question.answers[0].expert.id"
             ></app-button-primary>
           </div>
         </div>

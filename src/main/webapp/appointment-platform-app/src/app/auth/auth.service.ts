@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { environment } from '../models/environment.model';
 import { User } from '../models/user.model';
-import { Expert } from '../models/expert.model';
+
 import { LoginResponse } from '../models/loginResponse.model';
 
 @Injectable({
@@ -26,25 +26,40 @@ export class AuthService {
   }
   login(email: string, password: string): Observable<any> {
     const loginData = { email, password };
-return this.HttpClient.post<LoginResponse>(`${this.apiUrl}/login`, loginData).pipe(
-  tap((response) => {
-    sessionStorage.setItem('token', response.token);
-    sessionStorage.setItem('role', response.role);
-    if(response.role === 'EXPERT') {
-      sessionStorage.setItem('expert', JSON.stringify(response));
-    }
-    this.$isLoggedIn.next(true);
-  }),
-  catchError((error) => {
-    if (error.status === 401) {
-      return throwError(() => new Error('Niepoprawny email lub hasło'));
-    } else {
-      return throwError(() => new Error('Wystąpił błąd serwera'));
-    }
-  })
-);
-
+    return this.HttpClient.post<LoginResponse>(
+      `${this.apiUrl}/login`,
+      loginData
+    ).pipe(
+      tap((response) => {
+        sessionStorage.setItem('token', response.token);
+        sessionStorage.setItem('role', response.role);
+        if (response.role === 'EXPERT') {
+          sessionStorage.setItem('expert', JSON.stringify(response));
+        }
+        this.$isLoggedIn.next(true);
+      }),
+      catchError((error) => {
+        if (error.status === 401) {
+          return throwError(() => new Error('Niepoprawny email lub hasło'));
+        } else {
+          return throwError(() => new Error('Wystąpił błąd serwera'));
+        }
+      })
+    );
   }
+  getClientId(): number | null {
+    const token = sessionStorage.getItem('token');
+    if (!token) return null;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.clientId || null;
+    } catch (e) {
+      console.error('Błąd dekodowania tokena', e);
+      return null;
+    }
+  }
+  
   register(registerData: FormData): Observable<any> {
     return this.HttpClient.post(`${this.apiUrl}/register`, registerData).pipe(
       catchError((error) => {

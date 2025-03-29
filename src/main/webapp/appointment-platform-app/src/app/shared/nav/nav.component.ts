@@ -6,11 +6,14 @@ import { AuthService } from '../../auth/auth.service';
 import { Specialization } from '../modal/specialization.model';
 import { RegisterService } from '../../auth/register/register.service';
 import { NgClass } from '@angular/common';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { CitySearchService } from '../../find-experts/city-search.service';
+import { CityAutocompleteComponent } from "../city-autocomplete/city-autocomplete.component";
 
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [ButtonPrimaryComponent, RouterLink,NgClass],
+  imports: [ButtonPrimaryComponent, RouterLink, NgClass, ReactiveFormsModule, CityAutocompleteComponent],
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
 })
@@ -19,10 +22,19 @@ export class NavComponent  implements OnInit {
   router = inject(Router);
   authService = inject(AuthService);
   isLoggedIn = false;
-  cities: string[] = ['Warszawa', 'Kraków', 'Wrocław', 'Poznań'];
+  
   specializationsList:Specialization[]= [];
   registerService= inject(RegisterService);
-   
+  cityControl = new FormControl();
+  filteredCities: string[] = [];
+  isLoading = false;
+  showDropdown = false;
+  selectedCity: string | null = null;
+  citySearchService = inject(CitySearchService);
+  onCitySelected(city: string) {
+    console.log('Wybrano miasto:', city);
+    // Tutaj możesz dodać dodatkową logikę
+  }
   toggleMenu() {
     this.isOpen = !this.isOpen;
     if (this.isOpen) {
@@ -31,6 +43,7 @@ export class NavComponent  implements OnInit {
       document.body.classList.remove('overflow-hidden');
     }
   }
+
   ngOnInit(): void {
     this.authService.isLoggedIn.subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
@@ -40,8 +53,29 @@ export class NavComponent  implements OnInit {
       this.specializationsList = data;
       console.log('Loaded specializations:', this.specializationsList);
     });
+    this.citySearchService.getCitySearchObservable(this.cityControl)
+      .subscribe({
+        next: ({ cities, noResults }) => {
+          this.filteredCities = cities;
+          this.isLoading = false;
+          this.showDropdown = cities.length > 0 && this.cityControl.value.length >= 2;
+        },
+        error: () => {
+          this.isLoading = false;
+          this.showDropdown = false;
+        }
+      });
   }
-  
+  selectCity(city: string) {
+    this.cityControl.setValue(city);
+    this.showDropdown = false;
+  }
+
+  handleFocus() {
+    if (this.cityControl.value?.length >= 2) {
+      this.showDropdown = true;
+    }
+  }
   logout() {
     this.authService.logout();
     this.router.navigate(['/']);

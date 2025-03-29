@@ -17,35 +17,27 @@
           class="w-full border-b p-2 mt-1 focus:outline-none focus:border-b-2 cursor-pointer"
         >
           <option value="">Wybierz specjalizację</option>
-
-          @for( spec of specializations; track $index){
-          <option [value]="spec">{{ spec }}</option>
+          @for(spec of specializationsList; track $index){
+          <option [value]="spec.name">{{ spec.name }}</option>
           }
         </select>
       </div>
 
       <div class="mb-4">
-        <label for="city" class="block text-dark-section"
-          >Miasto lub dzielnica</label
-        >
-        <select
-          id="city"
-          formControlName="city"
-          class="w-full border-b p-2 mt-1 focus:outline-none focus:border-b-2 cursor-pointer"
-        >
-          <option value="">Wybierz miasto</option>
-          @for(city of cities; track $index){
-          <option [value]="city">{{ city }}</option>
-          }
-        </select>
+        <app-city-autocomplete
+          [control]="getControl('city')"
+          (citySelected)="onCitySelected($event)"
+        ></app-city-autocomplete>
       </div>
-
-      <button
-        type="submit"
-        class="w-full py-2 mt-4 hover:bg-primary hover:text-white ocus:outline-none transition duration-300 cursor-pointer"
-      >
-        Szukaj
-      </button>
+  
+      <app-button-primary
+        [text]="'Szukaj'"
+        [routerLink]="['/results']"
+        [queryParams]="{
+          specialization: searchForm.value.specialization,
+          city: searchForm.value.city
+        }"
+      ></app-button-primary>
     </form>
   </div>
 </div>

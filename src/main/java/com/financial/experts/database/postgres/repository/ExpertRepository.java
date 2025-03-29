@@ -15,6 +15,8 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Query("SELECT e FROM Expert e JOIN e.user u WHERE u.role = 'EXPERT' AND e.experienceYears >= :minExperience")
     List<Expert> findExpertsWithMinExperience(@Param("minExperience") int minExperience);
-
+    @Query("SELECT e FROM Expert e JOIN e.user u JOIN ExpertSpecialization es ON e.id = es.expert.id " +
+            "WHERE e.city = :city AND es.specialization.name = :specialization")
+    List<Expert> findByCityAndSpecialization(@Param("city") String city, @Param("specialization") String specialization);
     Optional<Expert> findByUserId(Long userId);
 }

@@ -123,7 +123,7 @@ public class AuthService {
             throw new LoginException("Konto nie zostało zweryfikowane");
         }
 
-        String token = jwtUtil.generateToken(userDetails.getUsername());
+        String token = jwtUtil.generateToken(userDetails.getUsername(),user.getId());
         String role = user.getRole();
 
         Expert expert = null;

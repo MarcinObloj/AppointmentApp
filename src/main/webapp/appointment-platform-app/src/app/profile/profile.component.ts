@@ -38,6 +38,12 @@ export interface ExpertProfile {
   ageGroups: string[];
   services: Service[];
   user: User;
+  workingHours: {
+    id: number;
+    dayOfWeek: string;
+    startHour: string;
+    endHour: string;
+  }[];
 }
 
 @Component({
@@ -86,6 +92,19 @@ export class ProfileComponent implements OnInit {
   isReviewExpanded = false;
   visibleServices = 5;
   isExpanded = false; // Dodaj tę zmienną
+
+  mapDay(day: string): number {
+    const daysMap: { [key: string]: number } = {
+      'Niedziela': 0,
+      'Poniedziałek': 1,
+      'Wtorek': 2,
+      'Środa': 3,
+      'Czwartek': 4,
+      'Piątek': 5,
+      'Sobota': 6,
+    };
+    return daysMap[day] ?? -1;
+  }
   ngOnInit(): void {
     const expertId = this.route.snapshot.params['id'];
     this.userService.getExpertById(expertId).subscribe({
@@ -105,6 +124,45 @@ export class ProfileComponent implements OnInit {
       this.expertProfile.street
     );
   }
+  dateFilter = (date: Date | null): boolean => {
+    if (!date || !this.expertProfile?.workingHours) {
+      return false;
+    }
+    const allowedDays = this.expertProfile.workingHours.map(wh => this.mapDay(wh.dayOfWeek));
+    return allowedDays.includes(date.getDay());
+  }
+  getAvailableHoursForSelectedDay(): string[] {
+    if (!this.selectedDate || !this.expertProfile?.workingHours) return [];
+    const dayNumber = this.selectedDate.getDay();
+    const workingHour = this.expertProfile.workingHours.find(
+        wh => this.mapDay(wh.dayOfWeek) === dayNumber
+    );
+    if (!workingHour) return [];
+  
+    const startHour = parseInt(workingHour.startHour.split(':')[0]);
+    const endHour = parseInt(workingHour.endHour.split(':')[0]);
+    const slots: string[] = [];
+    for (let hour = startHour; hour <= endHour; hour++) {
+        // Załóżmy, że sloty generujemy co godzinę
+        const hourStr = (hour < 10 ? '0' : '') + hour + ':00';
+        slots.push(hourStr);
+    }
+    return slots;
+}
+
+// Zwraca etykietę dnia (Dziś lub nazwa dnia)
+getDayLabel(): string {
+    if (!this.selectedDate) return '';
+    const today = new Date();
+    const isToday = this.selectedDate.toDateString() === today.toDateString();
+    if (isToday) {
+        return 'Dziś';
+    } else {
+        const days = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
+        return days[this.selectedDate.getDay()];
+    }
+}
+
   onServiceChange() {
     this.selectedService =
       this.expertProfile.services.find(

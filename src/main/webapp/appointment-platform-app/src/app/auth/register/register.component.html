@@ -260,11 +260,7 @@
 
         <div formArrayName="services">
           @for (service of services.controls; track $index) {
-            <div
-           
-            [formGroupName]="$index"
-            class="my-4"
-          >
+          <div [formGroupName]="$index" class="my-4">
             <label for="serviceName{{ $index }}" class="block text-sm"
               >Nazwa usługi</label
             >
@@ -294,7 +290,7 @@
             <p class="text-red-500 text-sm">Wprowadź cenę usługi</p>
             } @if (service.get('price')?.touched &&
             service.get('price')?.errors?.['min']) {
-            <p  class="text-red-500 text-sm">
+            <p class="text-red-500 text-sm">
               Cena musi być większa lub równa 0
             </p>
             }
@@ -308,9 +304,64 @@
             </button>
           </div>
           }
-        
+
           <button type="button" (click)="addService()" class="text-primary">
             Dodaj usługę
+          </button>
+        </div>
+        <div formArrayName="workingHours" class="my-4">
+          <h3 class="text-lg font-semibold mb-2">Godziny pracy</h3>
+          @for(wh of workingHours.controls; track $index){
+       
+          
+           
+            <div
+              
+              [formGroupName]="$index"
+              class="mb-4 border-b pb-2"
+            >
+              <label for="dayOfWeek{{ $index }}" class="block text-sm"
+                >Day of Week</label
+              >
+              <input
+                id="dayOfWeek{{ $index }}"
+                formControlName="dayOfWeek"
+                type="text"
+                placeholder="e.g., MONDAY"
+                class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+              />
+              <label for="startHour{{ $index }}" class="block text-sm mt-2"
+                >Start Time</label
+              >
+              <input
+                id="startHour{{ $index }}"
+                formControlName="startHour"
+                type="time"
+                class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+              />
+              <label for="endHour{{ $index }}" class="block text-sm mt-2"
+                >End Time</label
+              >
+              <input
+                id="endHour{{ $index }}"
+                formControlName="endHour"
+                type="time"
+                class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
+              />
+              <button
+                type="button"
+                (click)="removeWorkingHour($index)"
+                class="text-red-500 mt-2"
+              >
+                Remove Working Hour
+              </button>
+            </div>
+            
+          
+
+          }
+          <button type="button" (click)="addWorkingHour()" class="text-primary">
+            Dodaj godzinę pracy
           </button>
         </div>
       </div>

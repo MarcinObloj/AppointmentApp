@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -34,9 +35,9 @@ public class Expert {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(name="city")
+    @Column(name = "city")
     private String city;
-    @Column(name="street")
+    @Column(name = "street")
     private String street;
 
     @ElementCollection
@@ -48,4 +49,13 @@ public class Expert {
     @JoinColumn(name = "expert_id")
     private List<Service> services;
 
+    @OneToMany(mappedBy = "expert", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkingHour> workingHours = new ArrayList<>();
+
+
+    public void addWorkingHour(WorkingHour workingHour) {
+        workingHour.setExpert(this);
+        this.workingHours.add(workingHour);
+
+    }
 }

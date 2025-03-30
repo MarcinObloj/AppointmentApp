@@ -3,11 +3,7 @@ package com.financial.experts.module.auth.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.financial.experts.appplication.security.JwtUtil;
-import com.financial.experts.database.postgres.entity.Expert;
-import com.financial.experts.database.postgres.entity.ExpertSpecialization;
-import com.financial.experts.database.postgres.entity.Service;
-import com.financial.experts.database.postgres.entity.Specialization;
-import com.financial.experts.database.postgres.entity.User;
+import com.financial.experts.database.postgres.entity.*;
 import com.financial.experts.database.postgres.repository.ExpertRepository;
 import com.financial.experts.database.postgres.repository.ExpertSpecializationRepository;
 import com.financial.experts.database.postgres.repository.SpecializationRepository;
@@ -84,6 +80,18 @@ public class AuthService {
                     .map(serviceDTO -> new Service(serviceDTO.getName(), serviceDTO.getPrice()))
                     .collect(Collectors.toList());
             expert.setServices(services);
+
+            if (registerRequest.getWorkingHours() != null) {
+                registerRequest.getWorkingHours().forEach(whDTO -> {
+                    WorkingHour wh = new WorkingHour();
+                    wh.setDayOfWeek(whDTO.getDayOfWeek());
+                    wh.setStartHour(whDTO.getStartHour());
+                    wh.setEndHour(whDTO.getEndHour());
+                    expert.addWorkingHour(wh);
+                });
+            }
+
+
             expertRepository.save(expert);
             List<Long> specializations = registerRequest.getSpecializations();
             for (Long specializationId : specializations) {

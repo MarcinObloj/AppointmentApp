@@ -31,7 +31,7 @@ export class RegisterComponent {
   specializationsList: Specialization[] = [];
   constructor(private cdr: ChangeDetectorRef) {}
   selectedFilePreview: string | null = null;
- 
+
   ngOnInit(): void {
     this.registerForm = new FormGroup({
       firstName: new FormControl('', Validators.required),
@@ -51,6 +51,7 @@ export class RegisterComponent {
       ageGroups: new FormControl([]),
       clientTypes: new FormControl([]),
       services: new FormArray([]),
+      workingHours: new FormArray([]),
     });
 
     this.registerForm.get('role')?.valueChanges.subscribe((role) => {
@@ -64,10 +65,9 @@ export class RegisterComponent {
           .get('clientTypes')
           ?.setValidators(Validators.required);
         this.registerForm.get('ageGroups')?.setValidators(Validators.required);
-        this.registerForm.get('services')?.setValidators([
-          Validators.required,
-          Validators.minLength(1), 
-        ]);
+        this.registerForm
+          .get('services')
+          ?.setValidators([Validators.required, Validators.minLength(1)]);
       } else {
         this.registerForm.get('experienceYears')?.clearValidators();
         this.registerForm.get('city')?.clearValidators();
@@ -91,7 +91,23 @@ export class RegisterComponent {
       console.log('Loaded specializations:', this.specializationsList);
     });
   }
+  get workingHours(): FormArray {
+    return this.registerForm.get('workingHours') as FormArray;
+  }
 
+  addWorkingHour(): void {
+    this.workingHours.push(
+      new FormGroup({
+        dayOfWeek: new FormControl('', Validators.required),
+        startHour: new FormControl('', Validators.required),
+        endHour: new FormControl('', Validators.required),
+      })
+    );
+  }
+
+  removeWorkingHour(index: number): void {
+    this.workingHours.removeAt(index);
+  }
   removeFile() {
     this.selectedFile = null;
     this.selectedFilePreview = null;
@@ -131,11 +147,17 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       const formData = new FormData();
-  
+
       Object.keys(this.registerForm.controls).forEach((key) => {
         const value = this.registerForm.get(key)?.value;
-        if (key === 'services' && Array.isArray(value)) {
-          value.forEach((service, index) => {
+        if (key === 'workingHours' && Array.isArray(value)) {
+          value.forEach((wh: any, index: number) => {
+            formData.append(`workingHours[${index}].dayOfWeek`, wh.dayOfWeek);
+            formData.append(`workingHours[${index}].startHour`, wh.startHour);
+            formData.append(`workingHours[${index}].endHour`, wh.endHour);
+          });
+        } else if (key === 'services' && Array.isArray(value)) {
+          value.forEach((service: any, index: number) => {
             formData.append(`services[${index}].name`, service.name);
             formData.append(`services[${index}].price`, service.price.toString());
           });
@@ -143,11 +165,11 @@ export class RegisterComponent {
           formData.append(key, value.toString());
         }
       });
-  
+
       if (this.selectedFile) {
         formData.append('photo', this.selectedFile, this.selectedFile.name);
       }
-  
+
       this.authService.register(formData).subscribe({
         next: (response) => {
           console.log('Zarejestrowano:', response);
@@ -159,7 +181,9 @@ export class RegisterComponent {
         },
         error: (error) => {
           console.error('Błąd rejestracji:', error);
-          this.message.set('Wystąpił błąd podczas rejestracji. Spróbuj ponownie.');
+          this.message.set(
+            'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.'
+          );
           this.isError.set(true);
           this.visible = true;
         },
@@ -171,5 +195,4 @@ export class RegisterComponent {
       this.isError.set(true);
     }
   }
-  
 }

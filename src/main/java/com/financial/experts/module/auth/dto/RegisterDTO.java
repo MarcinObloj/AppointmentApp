@@ -28,6 +28,7 @@ public class RegisterDTO {
     private List<String> clientTypes;
     private List<String> ageGroups;
     private List<ServiceDTO> services;
+    private List<WorkingHourDTO> workingHours;
     public void setServices(Map<String, String> serviceMap) {
         List<ServiceDTO> servicesList = new ArrayList<>();
         int index = 0;

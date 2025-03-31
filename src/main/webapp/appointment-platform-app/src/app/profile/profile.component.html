@@ -300,6 +300,7 @@
         [matDatepicker]="picker"
         [matDatepickerFilter]="dateFilter"
         [(ngModel)]="selectedDate"
+        
         [min]="minDate"
         class="bg-gray-100 p-2"
       />
@@ -310,17 +311,23 @@
     <div class="grid grid-cols-3 gap-2 text-center mt-4">
       <div class="text-gray-500">{{ getDayLabel() }}</div>
     
-      @for(hour of getAvailableHoursForSelectedDay();track $index){
-        <div>
-          <button
-            class="px-3 py-1 border hover:bg-primary hover:text-white transition duration-300 cursor-pointer"
-            (click)="book(hour)"
-          >
-            {{ hour }}
-          </button>
-        </div>
+      @for(hour of getAvailableHoursForSelectedDay(); track $index){
+      <div>
+        <button
+          class="px-3 py-1 border transition duration-300"
+          [class.bg-gray-200]="isHourReserved(hour)"
+          [class.text-gray-500]="isHourReserved(hour)"
+          [class.line-through]="isHourReserved(hour)"
+          [class.cursor-not-allowed]="isHourReserved(hour)"
+          [class.hover:bg-primary]="!isHourReserved(hour)"
+          [class.hover:text-white]="!isHourReserved(hour)"
+          [disabled]="isHourReserved(hour)"
+          (click)="!isHourReserved(hour) && book(hour)"
+        >
+          {{ hour }}
+        </button>
+      </div>
       }
-      
     </div>
 
     <!-- @if(!showHours){

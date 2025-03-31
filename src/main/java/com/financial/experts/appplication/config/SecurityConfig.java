@@ -45,11 +45,13 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "api/verify",
+                                "api/contact",
                                 "api/specializations",
                                 "blog/**",
                                 "answers/**",
                                 "questions/**",
-                                "users/**"
+                                "users/**",
+                                "/appointments/**"
                         ).permitAll()
 
 

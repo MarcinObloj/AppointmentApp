@@ -1,5 +1,7 @@
 package com.financial.experts.module.mail.service;
 
+import com.financial.experts.database.postgres.entity.Appointment;
+import com.financial.experts.database.postgres.entity.Expert;
 import com.financial.experts.database.postgres.entity.User;
 import com.financial.experts.database.postgres.entity.VerificationToken;
 import com.financial.experts.database.postgres.repository.VerificationTokenRepository;
@@ -46,5 +48,34 @@ public class EmailService {
 
     }
 
+    public void sendAppointmentConfirmation(User client, Expert expert, Appointment appointment) throws MessagingException {
+        String subjectClient = "Appointment Confirmation";
+        String subjectExpert = "New Appointment Booked";
+
+        // Email for
+        MimeMessage messageClient = emailSender.createMimeMessage();
+        MimeMessageHelper helperClient = new MimeMessageHelper(messageClient, true, "UTF-8");
+        helperClient.setTo(client.getEmail());
+        helperClient.setSubject(subjectClient);
+        String clientBody = "Dear " + client.getFirstName() + ",\n\n" +
+                "Your appointment has been booked on " + appointment.getAppointmentDate() + " at " +
+                appointment.getAppointmentTime() + ".\n\n" +
+                "Best regards,\nYour Experts Team";
+        helperClient.setText(clientBody, false);
+        emailSender.send(messageClient);
+
+        // Email for expert
+        MimeMessage messageExpert = emailSender.createMimeMessage();
+        MimeMessageHelper helperExpert = new MimeMessageHelper(messageExpert, true, "UTF-8");
+        helperExpert.setTo(expert.getUser().getEmail());
+        helperExpert.setSubject(subjectExpert);
+        String expertBody = "Dear " + expert.getUser().getFirstName() + ",\n\n" +
+                "A new appointment has been booked on " + appointment.getAppointmentDate() + " at " +
+                appointment.getAppointmentTime() + " by client " +
+                client.getFirstName() + " " + client.getLastName() + ".\n\n" +
+                "Best regards,\nYour Experts Team";
+        helperExpert.setText(expertBody, false);
+        emailSender.send(messageExpert);
+    }
 
 }

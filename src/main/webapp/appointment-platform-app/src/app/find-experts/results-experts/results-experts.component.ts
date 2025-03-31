@@ -1,6 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, QueryList, ViewChildren } from '@angular/core';
 import { FormControl, FormsModule } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import {
+  MatDatepicker,
+  MatDatepickerModule,
+} from '@angular/material/datepicker';
 import {
   DateAdapter,
   MAT_DATE_LOCALE,
@@ -14,6 +17,7 @@ import { ExpertProfile } from '../../models/expert.model';
 import { ResultsService } from './results.service';
 import { Specialization } from '../../shared/modal/specialization.model';
 import { RegisterService } from '../../auth/register/register.service';
+import { ExpertCardComponent } from "./expert-card.component";
 @Component({
   selector: 'app-results-experts',
   imports: [
@@ -21,54 +25,52 @@ import { RegisterService } from '../../auth/register/register.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatFormFieldModule,
-    MatLabel,
+    
     MatInputModule,
-
     CityAutocompleteComponent,
-  ],
+    ExpertCardComponent
+],
   templateUrl: './results-experts.component.html',
   styleUrl: './results-experts.component.css',
   providers: [{ provide: MAT_DATE_LOCALE, useValue: 'pl-PL' }],
 })
 export class ResultsExpertsComponent {
   showFilters = false;
-  filters = { location: '', specialization: '' };
-  initialHours = ['10:00', '12:00', '14:00', '16:00'];
-  availableHours = [...this.initialHours];
-  showHours = false;
+  filters = { location: '', specialization: null };
   locationControl = new FormControl('');
-  selectedDate: Date | null = null;
-  showCalendar = false;
-  route = inject(ActivatedRoute);
   minDate: Date = new Date();
   specialization: string = '';
   city: string = '';
   experts: ExpertProfile[] = [];
-  resultsService = inject(ResultsService);
-  registerService = inject(RegisterService);
   specializationsList: Specialization[] = [];
-  router = inject(Router);
-  constructor(private dateAdapter: DateAdapter<Date>) {
+
+  constructor(
+    private dateAdapter: DateAdapter<Date>,
+    private route: ActivatedRoute,
+    private router: Router,
+    private resultsService: ResultsService,
+    private registerService: RegisterService
+  ) {
     this.dateAdapter.setLocale('pl-PL');
   }
+
   ngOnInit(): void {
-    // Przechwytywanie parametrów z URL
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.subscribe(params => {
       this.specialization = params['specialization'];
       this.city = params['city'];
-      console.log('Specialization:', this.specialization);
-      console.log('City:', this.city);
     });
-    this.registerService.getAllSpecializations().subscribe((data) => {
+    
+    this.registerService.getAllSpecializations().subscribe(data => {
       this.specializationsList = data;
-      console.log('Loaded specializations:', this.specializationsList);
     });
+    
     this.loadExperts();
   }
+
   onCitySelected(city: string) {
     this.filters.location = city;
-    console.log('Wybrane miasto:', city);
   }
+
   toggleFilters() {
     this.showFilters = !this.showFilters;
   }
@@ -84,32 +86,15 @@ export class ResultsExpertsComponent {
       },
       queryParamsHandling: 'merge',
     });
+    
     this.loadExperts();
   }
+
   loadExperts() {
     this.resultsService
       .getExperts(this.city, this.specialization)
-      .subscribe((data) => {
+      .subscribe((data: ExpertProfile[]) => {
         this.experts = data;
       });
-  }
-  book(hour: string) {
-    alert(`Zarezerwowano spotkanie na ${hour}`);
-  }
-
-  showMoreHours() {
-    const newHours = ['18:00', '20:00'];
-    this.showHours = !this.showHours;
-
-    this.availableHours = [...new Set([...this.availableHours, ...newHours])];
-  }
-
-  showLessHours() {
-    this.availableHours = [...this.initialHours];
-    this.showHours = !this.showHours;
-  }
-
-  toggleCalendar() {
-    this.showCalendar = !this.showCalendar;
   }
 }

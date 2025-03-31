@@ -6,3 +6,13 @@
   background-color: #e3bb8a;
   color: white; /* Białe tło dla kalendarza */
 }
+/* W pliku profile.component.css */
+button:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.line-through {
+  text-decoration: line-through;
+}

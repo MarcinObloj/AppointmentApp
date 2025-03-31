@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   DateAdapter,
@@ -13,6 +13,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { UserService } from './user.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import {
+  Appointment,
+  AppointmentDTO,
+  AppointmentService,
+} from './appointment.service';
+import { AuthService } from '../auth/auth.service';
 
 export interface User {
   id: number;
@@ -70,6 +76,7 @@ export class ProfileComponent implements OnInit {
   selectedDate: Date | null = null;
   showCalendar = false;
   minDate: Date = new Date();
+  appointmentService = inject(AppointmentService);
   filters1 = [
     'Wszystkie opinie (64)',
     'Pozytywne (64)',
@@ -91,17 +98,19 @@ export class ProfileComponent implements OnInit {
   isAgeGroupsExpanded = false;
   isReviewExpanded = false;
   visibleServices = 5;
+  reservedAppointments: { [date: string]: string[] } = {};
+  cdr = inject(ChangeDetectorRef);
   isExpanded = false; // Dodaj tę zmienną
-
+  authService = inject(AuthService);
   mapDay(day: string): number {
     const daysMap: { [key: string]: number } = {
-      'Niedziela': 0,
-      'Poniedziałek': 1,
-      'Wtorek': 2,
-      'Środa': 3,
-      'Czwartek': 4,
-      'Piątek': 5,
-      'Sobota': 6,
+      Niedziela: 0,
+      Poniedziałek: 1,
+      Wtorek: 2,
+      Środa: 3,
+      Czwartek: 4,
+      Piątek: 5,
+      Sobota: 6,
     };
     return daysMap[day] ?? -1;
   }
@@ -114,6 +123,12 @@ export class ProfileComponent implements OnInit {
         console.log(expertProfile.description.length);
         this.selectedService = this.expertProfile.services[0] || null;
         this.selectedServiceId = this.selectedService?.id || 0;
+
+        // Ustaw domyślnie dzisiejszą datę i pobierz rezerwacje
+        if (!this.selectedDate) {
+          this.selectedDate = new Date();
+          this.loadReservedHours();
+        }
       },
       error: (error) => {
         console.error('Błąd pobierania profilu:', error);
@@ -124,44 +139,76 @@ export class ProfileComponent implements OnInit {
       this.expertProfile.street
     );
   }
+
+  isHourReserved(hour: string): boolean {
+    if (!this.selectedDate) return false;
+    const dateKey = this.selectedDate.toISOString().split('T')[0];
+    return !!this.reservedAppointments[dateKey]?.includes(hour);
+  }
   dateFilter = (date: Date | null): boolean => {
     if (!date || !this.expertProfile?.workingHours) {
       return false;
     }
-    const allowedDays = this.expertProfile.workingHours.map(wh => this.mapDay(wh.dayOfWeek));
+    const allowedDays = this.expertProfile.workingHours.map((wh) =>
+      this.mapDay(wh.dayOfWeek)
+    );
     return allowedDays.includes(date.getDay());
-  }
+  };
   getAvailableHoursForSelectedDay(): string[] {
     if (!this.selectedDate || !this.expertProfile?.workingHours) return [];
     const dayNumber = this.selectedDate.getDay();
     const workingHour = this.expertProfile.workingHours.find(
-        wh => this.mapDay(wh.dayOfWeek) === dayNumber
+      (wh) => this.mapDay(wh.dayOfWeek) === dayNumber
     );
     if (!workingHour) return [];
-  
+
     const startHour = parseInt(workingHour.startHour.split(':')[0]);
     const endHour = parseInt(workingHour.endHour.split(':')[0]);
     const slots: string[] = [];
     for (let hour = startHour; hour <= endHour; hour++) {
-        // Załóżmy, że sloty generujemy co godzinę
-        const hourStr = (hour < 10 ? '0' : '') + hour + ':00';
-        slots.push(hourStr);
+      // Załóżmy, że sloty generujemy co godzinę
+      const hourStr = (hour < 10 ? '0' : '') + hour + ':00';
+      slots.push(hourStr);
     }
     return slots;
-}
-
-// Zwraca etykietę dnia (Dziś lub nazwa dnia)
-getDayLabel(): string {
+  }
+  loadReservedHours(): void {
+    if (!this.selectedDate) return;
+    const dateKey = this.selectedDate.toISOString().split('T')[0];
+    this.appointmentService
+      .getReservedAppointments(this.expertProfile.id, dateKey)
+      .subscribe({
+        next: (appointments: Appointment[]) => {
+          this.reservedAppointments[dateKey] = appointments.map(
+            (a) => a.appointmentTime
+          );
+          this.cdr.detectChanges(); 
+        },
+        error: (err) => {
+          console.error('Error fetching reserved appointments', err);
+        },
+      });
+  }
+  // Zwraca etykietę dnia (Dziś lub nazwa dnia)
+  getDayLabel(): string {
     if (!this.selectedDate) return '';
     const today = new Date();
     const isToday = this.selectedDate.toDateString() === today.toDateString();
     if (isToday) {
-        return 'Dziś';
+      return 'Dziś';
     } else {
-        const days = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
-        return days[this.selectedDate.getDay()];
+      const days = [
+        'Niedziela',
+        'Poniedziałek',
+        'Wtorek',
+        'Środa',
+        'Czwartek',
+        'Piątek',
+        'Sobota',
+      ];
+      return days[this.selectedDate.getDay()];
     }
-}
+  }
 
   onServiceChange() {
     this.selectedService =
@@ -199,11 +246,50 @@ getDayLabel(): string {
   applyFilters() {
     console.log('Zastosowano filtry:', this.filters);
   }
-
-  book(hour: string) {
-    console.log(`Zarezerwowano godzinę: ${hour}`);
+  onDateChange(date: Date): void {
+    this.selectedDate = date;
+    this.loadReservedHours();
   }
+  book(hour: string) {
+    const clientId = this.authService.getClientId();
+   
+    if (clientId === null) {
+      console.error('Client ID is null. User may not be authenticated.');
+      alert('Błąd autoryzacji. Upewnij się, że jesteś zalogowany.');
+      return;
+    }
+    if (!this.selectedDate) return;
 
+    const dateKey = this.selectedDate.toISOString().split('T')[0];
+    if (dateKey && this.reservedAppointments[dateKey]?.includes(hour)) {
+      alert(`Godzina ${hour} w dniu ${dateKey} jest już zarezerwowana.`);
+      return;
+    }
+    const dto: AppointmentDTO = {
+      expertId: this.expertProfile.id,
+      clientId: clientId,
+      appointmentDate: dateKey,
+      appointmentTime: hour,
+    };
+
+    this.appointmentService.bookAppointment(dto).subscribe({
+      next: (appointment: Appointment) => {
+        console.log('Appointment confirmed:', appointment);
+        if (!this.reservedAppointments[dateKey]) {
+          this.reservedAppointments[dateKey] = [];
+        }
+        if (!this.reservedAppointments[dateKey].includes(hour)) {
+          this.reservedAppointments[dateKey].push(hour);
+        }
+        this.cdr.detectChanges();
+        alert(`Wizyta zarezerwowana na ${dateKey} o godzinie ${hour}. Sprawdz swoją skrzynkę email. `);
+      },
+      error: (err) => {
+        console.error('Error booking appointment:', err);
+        alert('Błąd przy rezerwacji wizyty. Spróbuj ponownie później.');
+      },
+    });
+  }
   showMoreHours() {
     const newHours = ['18:00', '20:00'];
     this.showHours = true;

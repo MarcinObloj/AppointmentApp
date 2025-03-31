@@ -1,47 +1,46 @@
 package com.financial.experts.module.appointment.service;
 
 import com.financial.experts.database.postgres.entity.Appointment;
+import com.financial.experts.database.postgres.entity.Expert;
+import com.financial.experts.database.postgres.entity.User;
 import com.financial.experts.database.postgres.repository.AppointmentRepository;
+import com.financial.experts.database.postgres.repository.ExpertRepository;
+import com.financial.experts.database.postgres.repository.UserRepository;
+import com.financial.experts.module.appointment.dto.AppointmentDTO;
+import com.financial.experts.module.mail.service.EmailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
+
 @Service
+@RequiredArgsConstructor
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final ExpertRepository expertRepository;
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 
-    public AppointmentService(AppointmentRepository appointmentRepository) {
-        this.appointmentRepository = appointmentRepository;
-    }
-    public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
-    }
+    public Appointment reserveAppointment(AppointmentDTO dto) throws Exception {
+        Expert expert = expertRepository.findById(dto.getExpertId())
+                .orElseThrow(() -> new Exception("Expert not found"));
+        User client = userRepository.findById(dto.getClientId())
+                .orElseThrow(() -> new Exception("Client not found"));
+        Appointment appointment = new Appointment();
+        appointment.setExpert(expert);
+        appointment.setClient(client);
+        appointment.setAppointmentDate(dto.getAppointmentDate());
+        appointment.setAppointmentTime(dto.getAppointmentTime());
+        Appointment savedAppointment = appointmentRepository.save(appointment);
 
-    public Optional<Appointment> getAppointmentById(Long id) {
-        return appointmentRepository.findById(id);
+        // Sending confirmation emails (implement sending logic in EmailService)
+        emailService.sendAppointmentConfirmation(client, expert, savedAppointment);
+        return savedAppointment;
     }
-
-    public Appointment createAppointment(Appointment appointment) {
-        appointment.setStatus("SCHEDULED");
-        return appointmentRepository.save(appointment);
-    }
-
-    public Appointment updateAppointment(Long id, Appointment appointmentDetails) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found"));
-        appointment.setStartTime(appointmentDetails.getStartTime());
-        appointment.setEndTime(appointmentDetails.getEndTime());
-        appointment.setStatus(appointmentDetails.getStatus());
-        return appointmentRepository.save(appointment);
-    }
-
-    public void deleteAppointment(Long id) {
-        appointmentRepository.deleteById(id);
-    }
-
-    public List<Appointment> getAppointmentsByExpertAndDateRange(Long expertId, LocalDateTime start, LocalDateTime end) {
-        return appointmentRepository.findAppointmentsByExpertAndDateRange(expertId, start, end);
+    public List<Appointment> findAppointmentsByExpertAndDate(int expertId, String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        return appointmentRepository.findByExpertIdAndAppointmentDate(Long.valueOf(expertId), localDate);
     }
 }

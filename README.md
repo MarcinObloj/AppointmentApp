@@ -31,7 +31,7 @@ Backend
   <img src="https://img.icons8.com/color/48/000000/java-coffee-cup-logo.png" alt="Java" title="Java"/> 
   <img src="https://img.icons8.com/color/48/000000/spring-logo.png" alt="Spring Boot" title="Spring Boot"/> 
   <img src="https://img.icons8.com/color/48/000000/postgreesql.png" alt="PostgreSQL" title="PostgreSQL"/> 
-  <img src="https://img.icons8.com/color/48/000000/swagger.png" alt="Swagger" title="Swagger"/> </div
+  <img src="https://iconduck.com/icons/28022/swagger" alt="Swagger" title="Swagger"/> </div
 
 ## Dokumentacja SWAGGER
 ![Swagger](https://i.imgur.com/K3nwo4a.png)

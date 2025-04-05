@@ -21,17 +21,20 @@ Po rejestracji użytkownicy otrzymują email weryfikacyjny, aby potwierdzić swo
 
 ### Autoryzacja JWT
 Użycie tokenów JWT (JSON Web Tokens) zapewnia bezpieczną autoryzację użytkowników i ochronę danych.
-Technologie
-Frontend
+
+## Technologie
+### Frontend
 <div style="display: flex; gap: 10px; align-items: center;"> 
   <img src="https://img.icons8.com/color/48/000000/angularjs.png" alt="Angular" title="Angular"/> 
   <img src="https://img.icons8.com/color/48/000000/typescript.png" alt="TypeScript" title="TypeScript"/> </div>
-Backend
+
+### Backend
 <div style="display: flex; gap: 10px; align-items: center;"> 
-  <img src="https://img.icons8.com/color/48/000000/java-coffee-cup-logo.png" alt="Java" title="Java"/> 
-  <img src="https://img.icons8.com/color/48/000000/spring-logo.png" alt="Spring Boot" title="Spring Boot"/> 
-  <img src="https://img.icons8.com/color/48/000000/postgreesql.png" alt="PostgreSQL" title="PostgreSQL"/> 
-  <img src="https://static-00.iconduck.com/assets.00/swagger-icon-2048x2048-563qbzey.png" alt="Swagger" title="Swagger"/> </div
+  <img src="https://img.icons8.com/color/48/000000/java-coffee-cup-logo.png" alt="Java" title="Java" width="48" />
+  <img src="https://img.icons8.com/color/48/000000/spring-logo.png" alt="Spring Boot" title="Spring Boot" width="48" />
+  <img src="https://img.icons8.com/color/48/000000/postgreesql.png" alt="PostgreSQL" title="PostgreSQL" width="48" />
+  <img src="https://static-00.iconduck.com/assets.00/swagger-icon-2048x2048-563qbzey.png" alt="Swagger" title="Swagger" width="48" />
+</div>
 
 ## Dokumentacja SWAGGER
 ![Swagger](https://i.imgur.com/K3nwo4a.png)

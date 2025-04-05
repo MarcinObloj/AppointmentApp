@@ -57,6 +57,9 @@ Backend
 ### Wyniki wyszukiwań ekspertów:
 ![Kontakt](https://i.imgur.com/BmYk9IA.png)
 
+## Testy
+Aplikacja posiada również testy jednostkowe wykorzystujące JUnit 5 oraz Mockito. Testy są tworzone w celu zapewnienia wysokiej jakości i niezawodności aplikacji, obejmując zarówno testy backendowe (logika aplikacji, kontrolery, usługi) jak i testy integracyjne.
+
 ## Jak uruchomić projekt lokalnie
 
 ### Wymagania wstępne

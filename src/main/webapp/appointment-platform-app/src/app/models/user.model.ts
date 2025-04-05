@@ -1,3 +1,5 @@
+import { ExpertDTO } from "./answer.model";
+
 export interface User {
   id: number;
   firstName: string;
@@ -5,8 +7,13 @@ export interface User {
   email: string;
   password: string; 
   photoUrl: string;
-  role: 'CLIENT' | 'EXPERT' | 'ADMIN'; 
+  role: 'ROLE_CLIENT' | 'ROLE_EXPERT' | 'ROLE_ADMIN'; 
   createdAt: string; 
   updatedAt: string;
   verified: boolean;
+  expert?: {
+    id: number;
+    city: string;
+    street: string;
+  };
 }

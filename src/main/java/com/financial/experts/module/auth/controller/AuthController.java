@@ -1,17 +1,17 @@
 package com.financial.experts.module.auth.controller;
 
+import com.financial.experts.module.auth.dto.CurrentUserDTO;
 import com.financial.experts.module.auth.dto.LoginDTO;
+import com.financial.experts.module.auth.dto.LoginResponseDTO;
 import com.financial.experts.module.auth.dto.RegisterDTO;
 import com.financial.experts.module.auth.service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,28 +22,24 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@ModelAttribute RegisterDTO registerDTO) {
-        try {
-            return ResponseEntity.ok(authService.register(registerDTO));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-
-    @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<String> handleMissingParams(MissingServletRequestParameterException ex) {
-        String name = ex.getParameterName();
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing required parameter: " + name);
+        return ResponseEntity.ok(authService.register(registerDTO));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginRequest) {
-        try {
-            return ResponseEntity.ok(authService.login(loginRequest));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid login credentials");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
-        }
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginRequest, HttpServletResponse response) {
+        return ResponseEntity.ok(authService.login(loginRequest, response));
+    }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<CurrentUserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        return userDetails == null
+                ? ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
+                : ResponseEntity.ok(authService.getCurrentUser(userDetails.getUsername()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok().build();
     }
 }

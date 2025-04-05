@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Nowe spotkanie zaplanowane</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Witaj, <span th:text="${expertName}">Ekspercie</span></h1>
+    <p>Nowe spotkanie zostało zaplanowane na <span th:text="${appointmentDate}"></span> o godzinie <span th:text="${appointmentTime}"></span> przez klienta: <span th:text="${clientName}"></span>.</p>
+    <p>Prosimy o przygotowanie się na to spotkanie.</p>
+    <p>Best regards,<br> Twój Zespół Ekspertów</p>
+</div>
+</body>
+</html>

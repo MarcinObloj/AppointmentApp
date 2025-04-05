@@ -123,7 +123,7 @@ export class ProfileComponent implements OnInit {
         console.log(expertProfile.description.length);
         this.selectedService = this.expertProfile.services[0] || null;
         this.selectedServiceId = this.selectedService?.id || 0;
-
+        this.loadReservedHours();
         // Ustaw domyślnie dzisiejszą datę i pobierz rezerwacje
         if (!this.selectedDate) {
           this.selectedDate = new Date();
@@ -173,22 +173,31 @@ export class ProfileComponent implements OnInit {
     return slots;
   }
   loadReservedHours(): void {
-    if (!this.selectedDate) return;
+    if (!this.selectedDate || !this.expertProfile) return;
+  
     const dateKey = this.selectedDate.toISOString().split('T')[0];
-    this.appointmentService
-      .getReservedAppointments(this.expertProfile.id, dateKey)
-      .subscribe({
-        next: (appointments: Appointment[]) => {
-          this.reservedAppointments[dateKey] = appointments.map(
-            (a) => a.appointmentTime
-          );
-          this.cdr.detectChanges(); 
-        },
-        error: (err) => {
-          console.error('Error fetching reserved appointments', err);
-        },
-      });
+    console.log(`🔍 Pobieram rezerwacje dla: ${dateKey}`);
+  
+    this.appointmentService.getReservedAppointments(
+      this.expertProfile.id, 
+      dateKey
+    ).subscribe({
+      next: (appointments) => {
+        console.log('📅 Zarezerwowane godziny:', appointments);
+  
+        this.reservedAppointments = {
+          ...this.reservedAppointments,
+          [dateKey]: appointments.map(a => a.appointmentTime)
+        };
+  
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Błąd ładowania rezerwacji:', err);
+      }
+    });
   }
+  
   // Zwraca etykietę dnia (Dziś lub nazwa dnia)
   getDayLabel(): string {
     if (!this.selectedDate) return '';
@@ -247,47 +256,53 @@ export class ProfileComponent implements OnInit {
     console.log('Zastosowano filtry:', this.filters);
   }
   onDateChange(date: Date): void {
+    console.log("📅 Zmieniono datę na:", date);
     this.selectedDate = date;
     this.loadReservedHours();
   }
   book(hour: string) {
-    const clientId = this.authService.getClientId();
-   
-    if (clientId === null) {
-      console.error('Client ID is null. User may not be authenticated.');
-      alert('Błąd autoryzacji. Upewnij się, że jesteś zalogowany.');
+    if (!this.selectedDate) {
+      alert('Proszę wybrać datę wizyty');
       return;
     }
-    if (!this.selectedDate) return;
-
+  
     const dateKey = this.selectedDate.toISOString().split('T')[0];
-    if (dateKey && this.reservedAppointments[dateKey]?.includes(hour)) {
-      alert(`Godzina ${hour} w dniu ${dateKey} jest już zarezerwowana.`);
+    
+    if (this.isHourReserved(hour)) {
+      alert(`Godzina ${hour} jest już zarezerwowana`);
       return;
     }
-    const dto: AppointmentDTO = {
-      expertId: this.expertProfile.id,
-      clientId: clientId,
-      appointmentDate: dateKey,
-      appointmentTime: hour,
-    };
-
-    this.appointmentService.bookAppointment(dto).subscribe({
-      next: (appointment: Appointment) => {
-        console.log('Appointment confirmed:', appointment);
-        if (!this.reservedAppointments[dateKey]) {
-          this.reservedAppointments[dateKey] = [];
+  
+    this.authService.getClientId().subscribe({
+      next: (clientId) => {
+        if (!clientId) {
+          alert('Nie jesteś zalogowany');
+          return;
         }
-        if (!this.reservedAppointments[dateKey].includes(hour)) {
-          this.reservedAppointments[dateKey].push(hour);
-        }
-        this.cdr.detectChanges();
-        alert(`Wizyta zarezerwowana na ${dateKey} o godzinie ${hour}. Sprawdz swoją skrzynkę email. `);
+  
+        const dto: AppointmentDTO = {
+          expertId: this.expertProfile.id,
+          clientId: clientId,
+          appointmentDate: dateKey,
+          appointmentTime: hour
+        };
+  
+        this.appointmentService.bookAppointment(dto).subscribe({
+          next: () => {
+            // Po udanej rezerwacji ponownie załaduj rezerwacje
+            this.loadReservedHours();
+            alert(`Wizyta zarezerwowana na ${dateKey} o ${hour}`);
+          },
+          error: (err) => {
+            console.error('Błąd rezerwacji:', err);
+            alert('Wystąpił błąd podczas rezerwacji');
+          }
+        });
       },
       error: (err) => {
-        console.error('Error booking appointment:', err);
-        alert('Błąd przy rezerwacji wizyty. Spróbuj ponownie później.');
-      },
+        console.error('Błąd pobierania ID użytkownika:', err);
+        alert('Problem z autoryzacją');
+      }
     });
   }
   showMoreHours() {

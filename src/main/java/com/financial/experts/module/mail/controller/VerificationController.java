@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 
@@ -25,8 +26,7 @@ public class VerificationController {
     private final VerificationService verificationService;
 
     @GetMapping("/verify")
-    public ResponseEntity<String> verifyAccount(@RequestParam String token) {
-     String message = verificationService.verifyAccount(token);
-     return ResponseEntity.ok(message);
-}
+    public ModelAndView verify(@RequestParam("token") String token) {
+        return verificationService.verifyAccount(token);
+    }
 }

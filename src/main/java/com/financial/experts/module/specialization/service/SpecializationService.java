@@ -9,7 +9,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SpecializationService {
+
+public class
+SpecializationService {
     private final SpecializationRepository specializationRepository;
 
     public List<Specialization> getAllSpecializations() {

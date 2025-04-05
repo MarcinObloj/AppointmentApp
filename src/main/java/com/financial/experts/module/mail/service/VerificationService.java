@@ -7,6 +7,7 @@ import com.financial.experts.database.postgres.repository.VerificationTokenRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,8 @@ public class VerificationService {
 
     private final UserRepository userRepository;
 
-    public String verifyAccount(String token) {
+    public ModelAndView verifyAccount(String token) {
+        // Sprawdzanie tokena weryfikacyjnego
         VerificationToken verificationToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Nieprawidłowy token weryfikacyjny"));
 
@@ -29,10 +31,15 @@ public class VerificationService {
             throw new RuntimeException("Token weryfikacyjny wygasł");
         }
 
+        // Weryfikacja użytkownika
         User user = verificationToken.getUser();
         user.setVerified(true);
         userRepository.save(user);
 
-        return "Konto zostało pomyślnie zweryfikowane";
+
+        ModelAndView modelAndView = new ModelAndView("verification-success");
+        modelAndView.addObject("name", user.getFirstName());
+        modelAndView.addObject("verificationLink", "http://localhost:4200/login");
+        return modelAndView;
     }
 }

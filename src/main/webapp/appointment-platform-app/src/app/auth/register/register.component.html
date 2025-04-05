@@ -130,9 +130,9 @@
           class="mt-1 block w-full py-2 px-3 border-b focus:outline-none focus:ring-primary focus:border-b-2"
           required
         >
-          <option value="EXPERT">Ekspert</option>
-          <option value="CLIENT">Klient</option>
-          <option value="ADMIN">Administrator</option>
+          <option value="ROLE_EXPERT">Ekspert</option>
+          <option value="ROLE_CLIENT">Klient</option>
+          <option value="ROLE_ADMIN">Administrator</option>
         </select>
 
         @if(registerForm.get('role')?.touched &&
@@ -141,7 +141,7 @@
         }
       </div>
 
-      @if(registerForm.get('role')?.value === 'EXPERT'){
+      @if(registerForm.get('role')?.value === 'ROLE_EXPERT'){
       <div>
         <div class="my-4">
           <textarea

@@ -1,24 +1,72 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Weryfikacja konta</title>
     <style>
-        a{
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
             text-align: center;
-            color: white;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        a {
+            display: block;
+            padding: 12px 20px;
+            background-color: transparent;
+            color: black;
+            text-align: center;
             text-decoration: none;
-            border-radius: 5px;
+
+            font-size: 16px;
+            cursor:pointer;
+            transition:background-color 0.3s, color 0.3s
+
+        }
+
+        a:hover {
+            background-color: #ffbf00;
+            color: white;
+        }
+
+        .footer {
+            font-size: 14px;
+            color: #888;
+            margin-top: 30px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
+<div class="container">
     <h1>Witaj, <span th:text="${name}"></span></h1>
-    <p>Dziękujemy za rejestracje w naszym serwisie. Aby aktywować konto, kliknij poniższy link: </p>
+    <p>Dziękujemy za rejestrację w naszym serwisie. Aby aktywować konto, kliknij poniższy link:</p>
     <a th:href="${verificationLink}">Aktywuj konto</a>
-    <p>Jeśli nie rejestrowałeś się w naszym serwisie, zignoruj tą wiadomość</p>
+    <p class="footer">Jeśli nie rejestrowałeś się w naszym serwisie, zignoruj tę wiadomość.</p>
+</div>
 </body>
 </html>

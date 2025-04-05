@@ -5,6 +5,7 @@ import {
   catchError,
   map,
   Observable,
+  of,
   tap,
   throwError,
 } from 'rxjs';
@@ -19,20 +20,24 @@ import { LoginResponse } from '../models/loginResponse.model';
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private HttpClient = inject(HttpClient);
-  private $isLoggedIn = new BehaviorSubject<boolean>(this.hasToken());
+  private $isLoggedIn = new BehaviorSubject<boolean>(false);
   expertData?: LoginResponse;
-  private hasToken(): boolean {
-    return !!sessionStorage.getItem('token');
+  checkAuthState(): Observable<boolean> {
+    return this.getCurrentUser().pipe(
+      map(user => !!user),
+      catchError(() => of(false)),
+      tap(isLoggedIn => this.$isLoggedIn.next(isLoggedIn))
+    );
   }
-  login(email: string, password: string): Observable<any> {
+  login(email: string, password: string): Observable<LoginResponse> {
     const loginData = { email, password };
     return this.HttpClient.post<LoginResponse>(
       `${this.apiUrl}/login`,
-      loginData
+      loginData,
+      { withCredentials: true } 
     ).pipe(
       tap((response) => {
-        sessionStorage.setItem('token', response.token);
-        sessionStorage.setItem('role', response.role);
+        
         if (response.role === 'EXPERT') {
           sessionStorage.setItem('expert', JSON.stringify(response));
         }
@@ -47,17 +52,11 @@ export class AuthService {
       })
     );
   }
-  getClientId(): number | null {
-    const token = sessionStorage.getItem('token');
-    if (!token) return null;
-    
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.clientId || null;
-    } catch (e) {
-      console.error('Błąd dekodowania tokena', e);
-      return null;
-    }
+  getClientId(): Observable<number | null> {
+    return this.getCurrentUser().pipe(
+      map(user => user.id),
+      catchError(() => of(null))
+    );
   }
   
   register(registerData: FormData): Observable<any> {
@@ -67,12 +66,20 @@ export class AuthService {
       })
     );
   }
-
-  logout(): void {
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('role');
-    sessionStorage.removeItem('expert');
-    this.$isLoggedIn.next(false);
+  getCurrentUser(): Observable<User> {
+    return this.HttpClient.get<User>(`${this.apiUrl}/current-user`, 
+      { withCredentials: true }
+    );
+  }
+  logout(): Observable<void> {
+    return this.HttpClient.post<void>(`${this.apiUrl}/logout`, null, 
+      { withCredentials: true }
+    ).pipe(
+      tap(() => {
+        sessionStorage.clear();
+        this.$isLoggedIn.next(false);
+      })
+    );
   }
   setLoggedIn() {
     this.$isLoggedIn.next(true);

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class ServiceDTO {
     private String name;
     private Double price;

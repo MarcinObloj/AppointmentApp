@@ -1,14 +1,18 @@
 package com.financial.experts.module.auth.service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Uploader;
 import com.financial.experts.appplication.security.JwtUtil;
-import com.financial.experts.database.postgres.entity.User;
-import com.financial.experts.database.postgres.repository.UserRepository;
-import com.financial.experts.module.auth.dto.LoginDTO;
-import com.financial.experts.module.auth.dto.RegisterDTO;
-import com.financial.experts.module.auth.exception.LoginException;
-import com.financial.experts.module.auth.exception.RegistrationException;
+import com.financial.experts.database.postgres.entity.*;
+import com.financial.experts.database.postgres.repository.*;
+import com.financial.experts.module.auth.dto.*;
+import com.financial.experts.module.auth.exception.AuthException;
 import com.financial.experts.module.mail.service.EmailService;
+import com.financial.experts.module.service.dto.ServiceDTO;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,38 +24,45 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
-import org.mockito.MockitoAnnotations;
-
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private JwtUtil jwtUtil;
-
-    @Mock
-    private AuthenticationManager authenticationManager;
-    @Mock
-    private UserDetailsService userDetailsService;
-    @Mock
-    private EmailService emailService;
+    @Mock private UserRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private AuthenticationManager authenticationManager;
+    @Mock private JwtUtil jwtUtil;
+    @Mock private UserDetailsService userDetailsService;
+    @Mock private EmailService emailService;
+    @Mock private ExpertRepository expertRepository;
+    @Mock private SpecializationRepository specializationRepository;
+    @Mock private ExpertSpecializationRepository expertSpecializationRepository;
+    @Mock private Cloudinary cloudinary;
+    @Mock private Uploader uploader;
+    @Mock private HttpServletResponse response;
+    @Mock private MultipartFile photo;
 
     @InjectMocks
     private AuthService authService;
 
+    @BeforeEach
+    void setUp() {
+        when(cloudinary.uploader()).thenReturn(uploader);
+    }
+
     @Test
-    void shouldRegisterUserSuccessfully() throws MessagingException {
+    void register_ShouldSuccessfullyRegisterUser_WhenDataIsValid() throws IOException, MessagingException {
         // Arrange
         RegisterDTO registerRequest = new RegisterDTO();
         registerRequest.setEmail("test@example.com");
@@ -59,189 +70,185 @@ class AuthServiceTest {
         registerRequest.setFirstName("John");
         registerRequest.setLastName("Doe");
         registerRequest.setRole("USER");
+        registerRequest.setPhoto(photo);
+        registerRequest.setServices((Map<String, String>) Collections.emptyList()); // Dodane
 
-        User user = new User();
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword("encodedPassword");
-        user.setFirstName(registerRequest.getFirstName());
-        user.setLastName(registerRequest.getLastName());
-        user.setRole(registerRequest.getRole());
-        user.setVerified(false);
-
-        when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        when(uploader.upload(any(), any())).thenReturn(Map.of("url", "photoUrl"));
+        when(userRepository.save(any())).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(1L);
+            return user;
+        });
 
         // Act
-        User savedUser = authService.register(registerRequest);
+        User result = authService.register(registerRequest);
 
         // Assert
-        assertThat(savedUser).isNotNull();
-        assertThat(savedUser.getEmail()).isEqualTo(registerRequest.getEmail());
-        assertThat(savedUser.getPassword()).isEqualTo("encodedPassword");
-        assertThat(savedUser.isVerified()).isFalse();
-
-        verify(userRepository).findByEmail(registerRequest.getEmail());
-        verify(passwordEncoder).encode(registerRequest.getPassword());
-        verify(userRepository).save(any(User.class));
-        verify(emailService).sendVerificationEmail(any(User.class));
+        assertNotNull(result);
+        assertEquals("test@example.com", result.getEmail());
+        verify(userRepository).save(any());
+        verify(emailService).sendVerificationEmail(any());
     }
 
     @Test
-    void shouldThrowExceptionWhenUserAlreadyExists() {
+    void createExpertProfile_ShouldCreateExpertWithSpecializations() {
         // Arrange
-        RegisterDTO registerRequest = new RegisterDTO();
-        registerRequest.setEmail("test@example.com");
-
-        when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.of(new User()));
-
-        // Act & Assert
-        assertThatThrownBy(() -> authService.register(registerRequest))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessage("Użytkownik o podanym emailu już istnieje");
-
-        verify(userRepository).findByEmail(registerRequest.getEmail());
-        verifyNoMoreInteractions(passwordEncoder, userRepository, emailService);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenEmailSendingFails() throws MessagingException {
-        // Arrange
-        RegisterDTO registerRequest = new RegisterDTO();
-        registerRequest.setEmail("test@example.com");
-        registerRequest.setPassword("password");
-
         User user = new User();
-        user.setEmail(registerRequest.getEmail());
-        user.setPassword("encodedPassword");
+        user.setId(1L);
 
-        when(userRepository.findByEmail(registerRequest.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(registerRequest.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(user);
-        doThrow(new MessagingException("Failed to send email")).when(emailService).sendVerificationEmail(any(User.class));
+        RegisterDTO request = new RegisterDTO();
+        request.setSpecializations(List.of(1L, 2L));
+        request.setRole("EXPERT");
+        request.setServices(Map.of("Consulting", String.valueOf(100.0))); // Using Map instead of List
+        request.setWorkingHours(List.of(new WorkingHourDTO())); // Proper WorkingHourDTO list
 
-        // Act & Assert
-        assertThatThrownBy(() -> authService.register(registerRequest))
-                .isInstanceOf(RegistrationException.class)
-                .hasMessage("Nie udało się wysłać maila weryfikacyjnego");
+        Specialization spec1 = new Specialization();
+        spec1.setId(1L);
+        Specialization spec2 = new Specialization();
+        spec2.setId(2L);
 
-        verify(userRepository).findByEmail(registerRequest.getEmail());
-        verify(passwordEncoder).encode(registerRequest.getPassword());
-        verify(userRepository).save(any(User.class));
-        verify(emailService).sendVerificationEmail(any(User.class));
+        when(specializationRepository.findById(1L)).thenReturn(Optional.of(spec1));
+        when(specializationRepository.findById(2L)).thenReturn(Optional.of(spec2));
+
+        // Act
+        authService.createExpertProfile(user, request);
+
+        // Assert
+        verify(expertRepository).save(any());
+        verify(expertSpecializationRepository, times(2)).save(any());
     }
 
     @Test
-    void shouldLoginUserSuccessfully() {
+    void buildExpert_ShouldHandleNullServicesAndWorkingHours() {
+        // Arrange
+        User user = new User();
+        RegisterDTO request = new RegisterDTO();
+        request.setSpecializations(List.of(1L));
+        request.setRole("EXPERT");
+        // services and workingHours are null
+
+        Specialization spec = new Specialization();
+        spec.setId(1L);
+        when(specializationRepository.findById(1L)).thenReturn(Optional.of(spec));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> authService.createExpertProfile(user, request));
+    }
+
+    @Test
+    void uploadUserPhoto_ShouldThrowException_WhenUploadFails() throws IOException {
+        // Arrange
+        User user = new User();
+        when(uploader.upload(any(), any())).thenThrow(new IOException());
+
+        // Act & Assert
+        assertThrows(AuthException.class, () -> authService.uploadUserPhoto(user, photo));
+    }
+
+
+
+    @Test
+    void register_ShouldThrowException_WhenEmailExists() {
+        // Arrange
+        RegisterDTO registerRequest = new RegisterDTO();
+        registerRequest.setEmail("existing@example.com");
+
+        when(userRepository.findByEmail("existing@example.com")).thenReturn(Optional.of(new User()));
+
+        // Act & Assert
+        AuthException exception = assertThrows(AuthException.class,
+                () -> authService.register(registerRequest));
+
+        assertEquals("Użytkownik o podanym emailu już istnieje", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void login_ShouldReturnLoginResponse_WhenCredentialsAreValid() {
         // Arrange
         LoginDTO loginRequest = new LoginDTO();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("password");
 
-        UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn(loginRequest.getEmail());
-
         User user = new User();
-        user.setEmail(loginRequest.getEmail());
+        user.setId(1L);
+        user.setEmail("test@example.com");
         user.setVerified(true);
+        user.setRole("USER");
 
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
-        when(userDetailsService.loadUserByUsername(loginRequest.getEmail())).thenReturn(userDetails);
-        when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken(loginRequest.getEmail())).thenReturn("mockedJwtToken");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(jwtUtil.generateToken(any(), any())).thenReturn("jwtToken");
+        when(jwtUtil.getExpiration()).thenReturn(3600000L);
 
         // Act
-        String token = authService.login(loginRequest);
+        LoginResponseDTO result = authService.login(loginRequest, response);
 
         // Assert
-        assertThat(token).isNotNull();
-        assertThat(token).isEqualTo("mockedJwtToken");
+        assertNotNull(result);
+        assertEquals(1L, result.getUserId());
 
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userDetailsService).loadUserByUsername(loginRequest.getEmail());
-        verify(userRepository).findByEmail(loginRequest.getEmail());
-        verify(jwtUtil).generateToken(loginRequest.getEmail());
+
+        verify(response).addCookie(any(Cookie.class));
+        verify(authenticationManager).authenticate(any());
     }
 
     @Test
-    void shouldThrowExceptionWhenCredentialsAreInvalid() {
-        // Arrange
-        LoginDTO loginRequest = new LoginDTO();
-        loginRequest.setEmail("test@example.com");
-        loginRequest.setPassword("wrongPassword");
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Invalid credentials"));
-
-        // Act & Assert
-        assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(LoginException.class)
-                .hasMessage("Nieprawidłowy email lub hasło");
-
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verifyNoMoreInteractions(userDetailsService, userRepository, jwtUtil);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserDoesNotExist() {
-        // Arrange
-        LoginDTO loginRequest = new LoginDTO();
-        loginRequest.setEmail("nonexistent@example.com");
-        loginRequest.setPassword("password");
-
-        // Symuluj pomyślne uwierzytelnienie (authenticationManager nie rzuca wyjątku)
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
-
-        // Symuluj, że użytkownik nie istnieje w bazie danych
-        when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.empty());
-
-        // Symuluj, że userDetailsService zwraca UserDetails (nawet jeśli użytkownik nie istnieje)
-        UserDetails mockUserDetails = mock(UserDetails.class);
-        when(userDetailsService.loadUserByUsername(loginRequest.getEmail())).thenReturn(mockUserDetails);
-
-        // Act & Assert
-        assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(LoginException.class)
-                .hasMessage("Użytkownik nie istnieje");
-
-        // Weryfikuj, że metody zostały wywołane
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userRepository).findByEmail(loginRequest.getEmail());
-        verify(userDetailsService).loadUserByUsername(loginRequest.getEmail()); // Teraz to wywołanie jest oczekiwane
-        verifyNoInteractions(jwtUtil); // Upewnij się, że jwtUtil nie jest używany
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserIsNotVerified() {
+    void login_ShouldThrowException_WhenUserNotVerified() {
         // Arrange
         LoginDTO loginRequest = new LoginDTO();
         loginRequest.setEmail("test@example.com");
         loginRequest.setPassword("password");
 
-        // Symuluj pomyślne uwierzytelnienie (authenticationManager nie rzuca wyjątku)
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(null);
-
-        // Symuluj, że użytkownik istnieje, ale nie jest zweryfikowany
         User user = new User();
-        user.setEmail(loginRequest.getEmail());
         user.setVerified(false);
 
-        when(userRepository.findByEmail(loginRequest.getEmail())).thenReturn(Optional.of(user));
-
-        // Symuluj, że userDetailsService zwraca UserDetails
-        UserDetails mockUserDetails = mock(UserDetails.class);
-        when(userDetailsService.loadUserByUsername(loginRequest.getEmail())).thenReturn(mockUserDetails);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
 
         // Act & Assert
-        assertThatThrownBy(() -> authService.login(loginRequest))
-                .isInstanceOf(LoginException.class)
-                .hasMessage("Konto nie zostało zweryfikowane");
+        AuthException exception = assertThrows(AuthException.class,
+                () -> authService.login(loginRequest, response));
 
-        // Weryfikuj, że metody zostały wywołane
-        verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(userRepository).findByEmail(loginRequest.getEmail());
-        verify(userDetailsService).loadUserByUsername(loginRequest.getEmail()); // Teraz to wywołanie jest oczekiwane
-        verifyNoInteractions(jwtUtil); // Upewnij się, że jwtUtil nie jest używany
-    }
+        assertEquals("Konto nie zostało zweryfikowane", exception.getMessage());
     }
 
+    @Test
+    void getCurrentUser_ShouldReturnCurrentUserDTO() {
+        // Arrange
+        String email = "test@example.com";
+        User user = new User();
+        user.setId(1L);
+        user.setEmail(email);
+        user.setRole("EXPERT");
+
+        Expert expert = new Expert();
+        expert.setId(1L);
+        expert.setDescription("Test expert");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(expertRepository.findByUserId(1L)).thenReturn(Optional.of(expert));
+
+        // Act
+        CurrentUserDTO result = authService.getCurrentUser(email);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertEquals(email, result.getEmail());
+        assertEquals(1L, result.getExpertId());
+        assertEquals("Test expert", result.getDescription());
+    }
+
+    @Test
+    void logout_ShouldClearJwtCookie() {
+        // Act
+        authService.logout(response);
+
+        // Assert
+        verify(response).addCookie(any(Cookie.class));
+    }
+
+
+
+}

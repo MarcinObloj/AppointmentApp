@@ -35,7 +35,7 @@ public class AppointmentService {
         appointment.setAppointmentTime(dto.getAppointmentTime());
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        // Sending confirmation emails (implement sending logic in EmailService)
+
         emailService.sendAppointmentConfirmation(client, expert, savedAppointment);
         return savedAppointment;
     }

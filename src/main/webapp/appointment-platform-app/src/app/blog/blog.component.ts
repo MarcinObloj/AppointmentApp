@@ -11,10 +11,31 @@ import { LoginResponse } from '../models/loginResponse.model';
 import { AnswerService } from './answer.service';
 import { Answer, AnswerResponseDTO } from '../models/answer.model';
 import { RouterLink } from '@angular/router';
+import { ModalComponent } from '../shared/modal/modal.component';
+import { Page } from './blog.service';
+
+interface CurrentUser{
+  userId: number;
+  role: string;
+  firstName: string;
+  lastName: string;
+  photoUrl: string;
+  expert?:{
+    id: number | undefined;
+    street: string | undefined;
+    city: string |undefined;
+  }
+}
 
 @Component({
   selector: 'app-blog',
-  imports: [CardComponent, ButtonPrimaryComponent, FormsModule,RouterLink],
+  imports: [
+    CardComponent,
+    ButtonPrimaryComponent,
+    FormsModule,
+    RouterLink,
+    ModalComponent,
+  ],
   templateUrl: './blog.component.html',
   styleUrl: './blog.component.css',
 })
@@ -25,47 +46,111 @@ export class BlogComponent implements OnInit {
   questions: Question[] = [];
   cdr = inject(ChangeDetectorRef);
   isExpert: boolean = false;
-  currentExpert: LoginResponse | null = null;
+  showModal = false;
+  modalMessage = '';
+  isModalError = false;
+  currentPage = 0;
+  pageSize = 5; 
+  totalQuestions = 0;
+  isLoading = true; // Dodaj flagę ładowania
+  currentExpert: CurrentUser | null = null;
   newAnswer: { [key: string]: string } = {};
   newQuestionContent: string = '';
   ngOnInit(): void {
-    this.questionService.getQuestions().subscribe((data) => {
-      this.questions = data;
-      console.log(data);
+    this.loadQuestions();
+    this.authService.getCurrentUser().subscribe(user => {
+      this.isExpert = user.role === 'ROLE_EXPERT';
+      console.log(user);
+  
+      // Mapowanie user -> LoginResponse
+      this.currentExpert = {
+        role: user.role,
+        userId: user.id,  // Mapa `id` na `userId`
+        firstName: user.firstName,
+        lastName: user.lastName,
+        photoUrl: user.photoUrl,
+        expert: user.role === 'ROLE_EXPERT' ? {
+          id: user.expert?.id,
+          street: user.expert?.street,
+          city: user.expert?.city
+        } : undefined
+      };
+  
+      this.cdr.detectChanges(); // Odświeżenie widoku
     });
-    this.authService.isLoggedIn.subscribe((isLoggedIn) => {
-      if (isLoggedIn) {
-        const role = sessionStorage.getItem('role');
-        if (role === 'EXPERT') {
-          this.isExpert = true;
-          const expertJson = sessionStorage.getItem('expert');
-          if (expertJson) {
-            this.currentExpert = JSON.parse(expertJson);
-          }
-        }
+  }
+  
+  loadQuestions(page: number = 0): void {
+    this.questionService.getPaginatedQuestions(page, this.pageSize).subscribe({
+      next: (page: Page<Question>) => {
+        this.questions = page.content;
+        this.totalQuestions = page.totalElements;
+        this.currentPage = page.number;
+      },
+      error: (error) => {
+        console.error('Error loading questions:', error);
+        this.modalMessage = 'Wystąpił błąd podczas ładowania pytań';
+        this.isModalError = true;
+        this.showModal = true;
+        setTimeout(() => this.showModal = false, 3000);
       }
     });
   }
-  submitQuestion(): void {
-    const clientId = this.authService.getClientId();
-    console.log('Client ID z tokena:', clientId); 
-
-    if (clientId && this.newQuestionContent.trim()) {
-      this.questionService
-        .addQuestion({
-          clientId: clientId,
-          content: this.newQuestionContent.trim(),
-        })
-        .subscribe({
-          next: (question) => {
-            this.questions = [...this.questions, question];
-            this.newQuestionContent = '';
-          },
-          error: (error: any) => {
-            console.error('Błąd dodawania pytania:', error);
-          },
-        });
+  nextPage(): void {
+    if ((this.currentPage + 1) * this.pageSize < this.totalQuestions) {
+      this.loadQuestions(this.currentPage + 1);
     }
+  }
+  
+  prevPage(): void {
+    if (this.currentPage > 0) {
+      this.loadQuestions(this.currentPage - 1);
+    }
+  }
+  getPageNumbers(): number[] {
+    const totalPages = Math.ceil(this.totalQuestions / this.pageSize);
+    const pages = [];
+    
+    
+    const maxVisiblePages = 5;
+    let startPage = Math.max(0, this.currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+    
+    
+    startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }
+  goToPage(page: number): void {
+    this.loadQuestions(page);
+  }
+  submitQuestion(): void {
+    this.authService.getClientId().subscribe((clientId) => {
+      if (clientId && this.newQuestionContent.trim()) {
+        this.questionService
+          .addQuestion({
+            clientId: clientId,
+            content: this.newQuestionContent.trim(),
+          })
+          .subscribe({
+            next: () => {
+              this.newQuestionContent = '';
+              this.modalMessage = 'Pytanie zostało pomyślnie dodane!';
+              this.isModalError = false;
+              this.showModal = true;
+              setTimeout(() => (this.showModal = false), 3000);
+              
+             
+              this.loadQuestions(this.currentPage);
+            },
+          
+          });
+      }
+    });
   }
   cards: Card[] = [
     {
@@ -97,34 +182,29 @@ export class BlogComponent implements OnInit {
     },
   ];
   submitAnswer(questionId: number): void {
-    if (this.currentExpert) {
+    if (this.currentExpert && this.currentExpert.expert && this.currentExpert.expert.id !== undefined) {
       const answer: Answer = {
         createdAt: new Date().toISOString(),
         content: this.newAnswer[questionId],
         questionId: questionId,
-        expertId: this.currentExpert.expert!.id,
+        expertId: this.currentExpert.expert.id, // Bezpieczne pobranie ID eksperta
       };
-
+  
       this.answerService
-        .addAnswer(answer, questionId, this.currentExpert.expert!.id)
+        .addAnswer(answer, questionId, this.currentExpert.expert.id)
         .subscribe((response: AnswerResponseDTO) => {
           console.log('Answer added:', response);
-
-          const questionIndex = this.questions.findIndex(
-            (q) => q.id === questionId
-          );
+  
+          const questionIndex = this.questions.findIndex((q) => q.id === questionId);
           if (questionIndex !== -1) {
-            // Inicjalizuj tablicę answers jeśli nie istnieje
             if (!this.questions[questionIndex].answers) {
               this.questions[questionIndex].answers = [];
             }
-
-           
+  
             const newAnswer = {
               ...response,
               expert: {
                 ...response.expert,
-               
                 user: response.expert.user || {
                   photoUrl: response.expert.photoUrl,
                   firstName: response.expert.firstName,
@@ -132,16 +212,17 @@ export class BlogComponent implements OnInit {
                 },
               },
             };
-
+  
             this.questions[questionIndex].answers!.push(newAnswer);
-
-            // Utwórz nową referencję tablicy pytań
             this.questions = [...this.questions];
           }
-
+  
           this.newAnswer[questionId] = '';
           this.cdr.detectChanges();
         });
+    } else {
+      console.error("User is not an expert or expert data is missing");
     }
   }
+  
 }

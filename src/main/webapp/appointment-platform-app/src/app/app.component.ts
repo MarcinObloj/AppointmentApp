@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import {NavComponent} from './shared/nav/nav.component';
 import {HeaderComponent} from './main-page/header/header.component';
@@ -8,6 +8,7 @@ import {FooterComponent} from './shared/footer/footer.component';
 import {ContactComponent} from './main-page/contact/contact.component';
 import {OpinionsComponent} from './main-page/opinions/opinions.component';
 import {BestExpertsComponent} from './main-page/best-experts/best-experts.component';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -17,4 +18,8 @@ import {BestExpertsComponent} from './main-page/best-experts/best-experts.compon
 })
 export class AppComponent {
   title = 'appointment-platform-app';
+  authService = inject(AuthService);
+  ngOnInit(){
+    this.authService.checkAuthState().subscribe();
+  }
 }

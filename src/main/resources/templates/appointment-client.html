@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Potwierdzenie spotkania</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Witaj, <span th:text="${clientName}">Kliencie</span></h1>
+    <p>Twoje spotkanie zostało zaplanowane na <span th:text="${appointmentDate}"></span> o godzinie <span th:text="${appointmentTime}"></span>.</p>
+    <p>Jeśli potrzebujesz jakichkolwiek zmian, skontaktuj się z nami.</p>
+    <p>Do zobaczenia!</p>
+    <p>Best regards,<br> Twój Zespół Ekspertów</p>
+</div>
+</body>
+</html>

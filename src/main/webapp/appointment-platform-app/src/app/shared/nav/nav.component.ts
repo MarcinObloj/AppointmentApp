@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 
 import { ButtonPrimaryComponent } from '../button-primary/button-primary.component';
 import { Router, RouterLink } from '@angular/router';
@@ -8,23 +8,30 @@ import { RegisterService } from '../../auth/register/register.service';
 import { NgClass } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CitySearchService } from '../../find-experts/city-search.service';
-import { CityAutocompleteComponent } from "../city-autocomplete/city-autocomplete.component";
+import { CityAutocompleteComponent } from '../city-autocomplete/city-autocomplete.component';
 
 @Component({
   selector: 'app-nav',
   standalone: true,
-  imports: [ButtonPrimaryComponent, RouterLink, NgClass, ReactiveFormsModule, CityAutocompleteComponent],
+  imports: [
+    ButtonPrimaryComponent,
+    RouterLink,
+    NgClass,
+    ReactiveFormsModule,
+    CityAutocompleteComponent,
+  ],
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.css'],
 })
-export class NavComponent  implements OnInit {
+export class NavComponent implements OnInit {
   isOpen = false;
   router = inject(Router);
   authService = inject(AuthService);
   isLoggedIn = false;
-  
-  specializationsList:Specialization[]= [];
-  registerService= inject(RegisterService);
+
+  specializationsList: Specialization[] = [];
+  cd = inject(ChangeDetectorRef);
+  registerService = inject(RegisterService);
   cityControl = new FormControl();
   filteredCities: string[] = [];
   isLoading = false;
@@ -53,18 +60,18 @@ export class NavComponent  implements OnInit {
       this.specializationsList = data;
       console.log('Loaded specializations:', this.specializationsList);
     });
-    this.citySearchService.getCitySearchObservable(this.cityControl)
-      .subscribe({
-        next: ({ cities, noResults }) => {
-          this.filteredCities = cities;
-          this.isLoading = false;
-          this.showDropdown = cities.length > 0 && this.cityControl.value.length >= 2;
-        },
-        error: () => {
-          this.isLoading = false;
-          this.showDropdown = false;
-        }
-      });
+    this.citySearchService.getCitySearchObservable(this.cityControl).subscribe({
+      next: ({ cities, noResults }) => {
+        this.filteredCities = cities;
+        this.isLoading = false;
+        this.showDropdown =
+          cities.length > 0 && this.cityControl.value.length >= 2;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.showDropdown = false;
+      },
+    });
   }
   selectCity(city: string) {
     this.cityControl.setValue(city);
@@ -77,9 +84,15 @@ export class NavComponent  implements OnInit {
     }
   }
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/']);
-    
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+        console.log('After logout subscription', this.isLoggedIn); // Powinno być false
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+      },
+    });
   }
   isLoginRoute(): boolean {
     return this.router.url === '/login';

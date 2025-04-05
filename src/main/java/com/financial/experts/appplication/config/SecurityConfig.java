@@ -48,35 +48,18 @@ public class SecurityConfig {
                                 "api/contact",
                                 "api/specializations",
                                 "blog/**",
-                                "answers/**",
-                                "questions/**",
-                                "users/**",
-                                "/appointments/**"
+                                "users/**"
+
                         ).permitAll()
 
 
                         .requestMatchers(
-                                "/api/user/**",
-                                "/api/appointment/**",
-                                "/api/rating/**",
-                                "/api/comment/**"
-                        ).hasAnyRole("USER", "EXPERT", "ADMIN")
+                                "answers/**",
+                                "/appointments/**",
+                                "/questions/**"
+                        ).hasAnyRole("EXPERT", "CLIENT")
 
 
-                        .requestMatchers(
-                                "/api/expert/**",
-                                "/api/appointment/**"
-                        ).hasAnyRole("EXPERT", "ADMIN")
-
-                        // Endpointy dla bloga
-                        .requestMatchers(
-                                "/api/blog/**"
-                        ).hasAnyRole("EXPERT", "ADMIN")
-
-
-                        .requestMatchers(
-                                "/api/admin/**"
-                        ).hasRole("ADMIN")
 
                         // Wszystkie inne żądania wymagają uwierzytelnienia
                         .anyRequest().authenticated()

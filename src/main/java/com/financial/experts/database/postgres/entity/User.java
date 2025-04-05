@@ -1,12 +1,13 @@
 package com.financial.experts.database.postgres.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "users")
 public class User {
@@ -31,14 +32,17 @@ public class User {
     private String role; // Może być "USER", "EXPERT", "ADMIN"
 
     @Column(name="verified", nullable = false)
+    @Builder.Default
     private boolean verified = false;
 
     @Column(name="photo_url")
     private String photoUrl;
 
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

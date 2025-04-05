@@ -300,7 +300,7 @@
         [matDatepicker]="picker"
         [matDatepickerFilter]="dateFilter"
         [(ngModel)]="selectedDate"
-        
+        (ngModelChange)="onDateChange($event)"
         [min]="minDate"
         class="bg-gray-100 p-2"
       />
